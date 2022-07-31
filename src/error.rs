@@ -4,13 +4,15 @@ use std::io;
 pub enum Error {
     Io(String),
     Serialize(String),
+    Numeral
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Io(msg) => write!(f, "Error while doing I/O operations: {msg}"),
-            Error::Serialize(msg) => write!(f, "Unable to serialize items due to: {msg}")
+            Error::Serialize(msg) => write!(f, "Unable to serialize items due to: {msg}"),
+            Error::Numeral => write!(f, "No numeral value has been found")
         }
     }
 }

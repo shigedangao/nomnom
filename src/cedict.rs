@@ -67,7 +67,7 @@ impl Cedict {
 
                 item.translations = reminder.to_string();
                 // convert a pinyin w/o accent to a pinyin with accent
-                item.convert_pinyin_to_acccent();
+                item.convert_pinyin_to_acccent()?;
                 items.push(item);
             }
         }
@@ -97,16 +97,16 @@ impl Cedict {
     /// # Arguments
     /// 
     /// * `&mut self` - Self
-    fn convert_pinyin_to_acccent(&mut self) {
+    fn convert_pinyin_to_acccent(&mut self) -> Result<(), Error> {
         // get a list of pinyin (cedict can provide many pinyin for a single character)
-        let words = self.pinyin.split(" ");
+        let words = self.pinyin.split(' ');
         let mut pinyin_list_accent = Vec::new();
         for word in words {
             // loop through each character of the pinyin word to find if it has any numeric value
             // if yes, then we need to find the vowel and replace the vowel with the proper tone character
             let has_numeric = word.chars().any(char::is_numeric);
             if has_numeric {
-                let word = replace_vowel_with_accent(word);
+                let word = replace_vowel_with_accent(word)?;
                 pinyin_list_accent.push(word);
             } else {
                 pinyin_list_accent.push(word.to_string());
@@ -114,6 +114,8 @@ impl Cedict {
         }
 
         self.pinyin_accent = pinyin_list_accent.join(" ");
+
+        Ok(())
     }
 }
 
@@ -128,19 +130,19 @@ impl Cedict {
 /// # Arguments
 /// 
 /// * `word` - &str 
-fn replace_vowel_with_accent(word: &str) -> String {
+fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
     let chars = word.chars();
     let mut chars_vec: Vec<char> = chars.to_owned().collect();
     let mut pinyin_vec = Vec::new();
+
     // indication of the tone is located at the end of the word
-    let numeric = chars_vec.pop();
-    if numeric.is_none() {
-        return chars.as_str().to_owned();
-    }
+    let numeric = chars_vec
+        .pop()
+        .ok_or(Error::Numeral)?;
 
     // count number of vowel in a sentence
     let vowel_count = chars_vec.iter().filter(|c| VOWEL.contains(c)).count();
-    let tone = match numeric.unwrap() {
+    let tone = match numeric {
         '1' => FIRST_TONE,
         '2' => SECOND_TONE,
         '3' => THIRD_TONE,
@@ -160,7 +162,7 @@ fn replace_vowel_with_accent(word: &str) -> String {
         }
     }
 
-    pinyin_vec.join("")
+    Ok(pinyin_vec.join(""))
 }
 
 /// Get the vowel position which will be use to add the tone marker
@@ -173,6 +175,7 @@ fn get_vowel_position(vowel_count: usize, mut vowels: Chars) -> usize {
     let mut vowel_position = 0;
 
     if vowel_count == 1 {
+        // Using expect as we should have at least 1 as we have previously count that we have 1 vowel
         vowel_position = vowels.position(|c| VOWEL.contains(&c)).expect("Expect to found a vowel position");
     } else {
         for (idx, c) in vowels.enumerate() {
@@ -203,7 +206,7 @@ mod tests {
     fn expect_to_convert_numeri_pinyin_to_accent() {
         let word = "xian1";
 
-        let expected_word = super::replace_vowel_with_accent(word);
+        let expected_word = super::replace_vowel_with_accent(word).unwrap();
         assert_eq!(expected_word, "xiān");
     }
 
@@ -211,7 +214,7 @@ mod tests {
     fn expect_to_convert_simple_pinyin_to_accent() {
         let word = "chi1";
 
-        let expected_word = super::replace_vowel_with_accent(word);
+        let expected_word = super::replace_vowel_with_accent(word).unwrap();
         assert_eq!(expected_word, "chī");
     }
 }
