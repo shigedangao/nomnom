@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::BufReader,
+    str::Chars,
 };
 use serde::Serialize;
 use crate::error::Error;
@@ -13,12 +14,13 @@ const EMPTY_SPACE_CHARACTER: char = ' ';
 const LEFT_BRACKET_CHARACTER: char = '[';
 const RIGHT_BRACKET_CHARACTER: char = ']';
 
-// chinese pinyin accent
+// const for chinese pinyin accent
 const FIRST_TONE: &str = "\u{0304}";
 const SECOND_TONE: &str = "\u{0301}";
 const THIRD_TONE: &str = "\u{030c}";
 const FOURTH_TONE: &str = "\u{0300}";
 
+// constant for vowels
 const VOWEL: [char; 5] = ['a', 'e', 'i', 'o', 'u'];
 const MEDAL_VOWEL: [char; 2] = ['i', 'u'];
 
@@ -90,6 +92,11 @@ impl Cedict {
         None
     }
 
+    /// Convert a pinyin with numeric value to a pinyin with accents
+    /// 
+    /// # Arguments
+    /// 
+    /// * `&mut self` - Self
     fn convert_pinyin_to_acccent(&mut self) {
         // get a list of pinyin (cedict can provide many pinyin for a single character)
         let words = self.pinyin.split(" ");
@@ -97,51 +104,114 @@ impl Cedict {
         for word in words {
             // loop through each character of the pinyin word to find if it has any numeric value
             // if yes, then we need to find the vowel and replace the vowel with the proper tone character
-            let has_numeric = word.chars().all(char::is_numeric);
+            let has_numeric = word.chars().any(char::is_numeric);
             if has_numeric {
-                replace_vowel_with_accent(word);
-            } else {
+                let word = replace_vowel_with_accent(word);
                 pinyin_list_accent.push(word);
+            } else {
+                pinyin_list_accent.push(word.to_string());
             }
         }
 
-        self.pinyin_accent = pinyin_list_accent.join("");
+        self.pinyin_accent = pinyin_list_accent.join(" ");
     }
 }
 
+/// Replace the vowel with the tone accent
+///     - Tones are only placed in a vowel
+///     - There are some rules. Please refer to readme for the link of the rules but in short:
+///         - 1 vowel only -> add the marker tone to the vowel
+///         - More than 2 vowels
+///             -> If first vowel is a medial vowel then the next letter (vowel) should have the tone marker
+///             -> Otherwise, the first vowel has the tone marker
+/// 
+/// # Arguments
+/// 
+/// * `word` - &str 
 fn replace_vowel_with_accent(word: &str) -> String {
     let chars = word.chars();
     let mut chars_vec: Vec<char> = chars.to_owned().collect();
+    let mut pinyin_vec = Vec::new();
     // indication of the tone is located at the end of the word
-    let numeric = chars_vec.pop()
-        .and_then(|c| Some(c as u8));
-
+    let numeric = chars_vec.pop();
     if numeric.is_none() {
         return chars.as_str().to_owned();
     }
 
+    // count number of vowel in a sentence
+    let vowel_count = chars_vec.iter().filter(|c| VOWEL.contains(c)).count();
     let tone = match numeric.unwrap() {
-        1 => FIRST_TONE,
-        2 => SECOND_TONE,
-        3 => THIRD_TONE,
-        4 => FOURTH_TONE,
+        '1' => FIRST_TONE,
+        '2' => SECOND_TONE,
+        '3' => THIRD_TONE,
+        '4' => FOURTH_TONE,
         _ => ""
     };
 
-    // store the position where we found the vowel
-    let mut vowel_position = 0;
-    let mut previous_vowel = '\0';
-    for (idx, c) in chars.enumerate() {
-        if c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' {
-            // check if the vowel is a medal vowel
-            previous_vowel = c;
-            vowel_position = idx;
+    // get the position of the vowel we want to edit
+    let vowel_position = get_vowel_position(vowel_count, chars);
+    
+    // loop through the chars_vec to edit the char and then create a string
+    for (idx, ch) in chars_vec.into_iter().enumerate() {
+        if idx == vowel_position {
+            pinyin_vec.push(format!("{}{}", ch, tone));
+        } else {
+            pinyin_vec.push(ch.to_string());
         }
     }
 
-    if let Some(vowel) = chars_vec.get(vowel_position) {
-        
+    pinyin_vec.join("")
+}
+
+/// Get the vowel position which will be use to add the tone marker
+/// 
+/// # Arguments
+/// 
+/// * `vowel_count` - usize
+/// * `mut vowels` - Chars
+fn get_vowel_position(vowel_count: usize, mut vowels: Chars) -> usize {
+    let mut vowel_position = 0;
+
+    if vowel_count == 1 {
+        vowel_position = vowels.position(|c| VOWEL.contains(&c)).expect("Expect to found a vowel position");
+    } else {
+        for (idx, c) in vowels.enumerate() {
+            // cases where there are more than 1 vowel
+            // If the first vowel is a MEDIAL Vowel, then the next vowel (should be the next letter)
+            // is the one who has the marker tone
+            if MEDAL_VOWEL.contains(&c) {
+                vowel_position = idx + 1;
+                // break to not take into account other vowels
+                break;
+            } else if VOWEL.contains(&c) {
+                // otherwise it's the first vowel that we need to take into account
+                // only the first vowel
+                vowel_position = idx;
+                // break to not take into account other vowels
+                break;
+            }
+        }
     }
 
-    return "".to_string()
+    vowel_position
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn expect_to_convert_numeri_pinyin_to_accent() {
+        let word = "xian1";
+
+        let expected_word = super::replace_vowel_with_accent(word);
+        assert_eq!(expected_word, "xiān");
+    }
+
+    #[test]
+    fn expect_to_convert_simple_pinyin_to_accent() {
+        let word = "chi1";
+
+        let expected_word = super::replace_vowel_with_accent(word);
+        assert_eq!(expected_word, "chī");
+    }
 }
