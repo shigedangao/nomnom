@@ -1,7 +1,6 @@
 use std::{
     fs::File,
-    io::BufReader,
-    str::Chars,
+    io::BufReader
 };
 use serde::Serialize;
 use crate::error::Error;
@@ -22,7 +21,7 @@ const FOURTH_TONE: &str = "\u{0300}";
 
 // constant for vowels
 const VOWEL: [char; 5] = ['a', 'e', 'i', 'o', 'u'];
-const MEDAL_VOWEL: [char; 2] = ['i', 'u'];
+const MEDIAL_VOWEL: [char; 2] = ['i', 'u'];
 
 #[derive(Debug, Default, Serialize)]
 pub struct Cedict {
@@ -131,8 +130,7 @@ impl Cedict {
 /// 
 /// * `word` - &str 
 fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
-    let chars = word.chars();
-    let mut chars_vec: Vec<char> = chars.to_owned().collect();
+    let mut chars_vec: Vec<char> = word.chars().collect();
     let mut pinyin_vec = Vec::new();
 
     // indication of the tone is located at the end of the word
@@ -151,8 +149,7 @@ fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
     };
 
     // get the position of the vowel we want to edit
-    let vowel_position = get_vowel_position(vowel_count, chars);
-    
+    let vowel_position = get_vowel_position(vowel_count, &chars_vec);
     // loop through the chars_vec to edit the char and then create a string
     for (idx, ch) in chars_vec.into_iter().enumerate() {
         if idx == vowel_position {
@@ -171,22 +168,24 @@ fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
 /// 
 /// * `vowel_count` - usize
 /// * `mut vowels` - Chars
-fn get_vowel_position(vowel_count: usize, mut vowels: Chars) -> usize {
+fn get_vowel_position(vowel_count: usize, vowels: &[char]) -> usize {
     let mut vowel_position = 0;
 
     if vowel_count == 1 {
         // Using expect as we should have at least 1 as we have previously count that we have 1 vowel
-        vowel_position = vowels.position(|c| VOWEL.contains(&c)).expect("Expect to found a vowel position");
+        vowel_position = vowels.iter()
+            .position(|c| VOWEL.contains(c))
+            .expect("Expect to found a vowel position");
     } else {
-        for (idx, c) in vowels.enumerate() {
+        for (idx, c) in vowels.iter().enumerate() {
             // cases where there are more than 1 vowel
             // If the first vowel is a MEDIAL Vowel, then the next vowel (should be the next letter)
             // is the one who has the marker tone
-            if MEDAL_VOWEL.contains(&c) {
+            if MEDIAL_VOWEL.contains(c) {
                 vowel_position = idx + 1;
                 // break to not take into account other vowels
                 break;
-            } else if VOWEL.contains(&c) {
+            } else if VOWEL.contains(c) {
                 // otherwise it's the first vowel that we need to take into account
                 // only the first vowel
                 vowel_position = idx;
