@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::BufReader
+    io::BufReader,
 };
 use serde::Serialize;
 use crate::error::Error;
@@ -22,6 +22,16 @@ const FOURTH_TONE: &str = "\u{0300}";
 // constant for vowels
 const VOWEL: [char; 5] = ['a', 'e', 'i', 'o', 'u'];
 const MEDIAL_VOWEL: [char; 2] = ['i', 'u'];
+
+// constant for special cedict :<number> char
+const TONE_SPECIAL_COLON_MARKER: &str = ":";
+
+// Special tone with the different 'u' value
+const NEUTRAL_TONE_U: &str = "ü";
+const FIRST_TONE_U: &str = "ǖ";
+const SECOND_TONE_U: &str = "ǘ";
+const THIRD_TONE_U: &str = "ǚ";
+const FOURTH_TONE_U: &str = "ǜ";
 
 #[derive(Debug, Default, Serialize)]
 pub struct Cedict {
@@ -105,7 +115,12 @@ impl Cedict {
             // if yes, then we need to find the vowel and replace the vowel with the proper tone character
             let has_numeric = word.chars().any(char::is_numeric);
             if has_numeric {
-                let word = replace_vowel_with_accent(word)?;
+                // Check if it's a special case of ':<number>'
+                let word = match word.contains(TONE_SPECIAL_COLON_MARKER) {
+                    true => replace_collon_tone_with_accent(word),
+                    false => replace_vowel_with_accent(word)?
+                };
+
                 pinyin_list_accent.push(word);
             } else {
                 pinyin_list_accent.push(word.to_string());
@@ -162,6 +177,29 @@ fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
     Ok(pinyin_vec.join(""))
 }
 
+/// Special case where a pinyin has the following tone marker
+///     - :1 -> ǖ
+///     - :2 -> ǘ
+///     - :3 -> ǚ
+///     - :4 -> ǜ
+/// 
+/// # Arguments
+/// 
+/// * `word` - &str
+fn replace_collon_tone_with_accent(word: &str) -> String {
+    // Change the two last character in order to get the tone marker and the value
+    let (part, tone_marker) = word.split_at(word.len() - 3);
+    let char_with_tone_marker = match tone_marker {
+        "u:1" => FIRST_TONE_U,
+        "u:2" => SECOND_TONE_U,
+        "u:3" => THIRD_TONE_U,
+        "u:4" => FOURTH_TONE_U,
+        _ => NEUTRAL_TONE_U
+    };
+
+    format!("{}{}", part, char_with_tone_marker)
+}
+
 /// Get the vowel position which will be use to add the tone marker
 /// 
 /// # Arguments
@@ -215,5 +253,13 @@ mod tests {
 
         let expected_word = super::replace_vowel_with_accent(word).unwrap();
         assert_eq!(expected_word, "chī");
+    }
+
+    #[test]
+    fn expect_to_convert_special_tone_marker() {
+        let word = "nu:3";
+
+        let expected_word = super::replace_collon_tone_with_accent(word);
+        assert_eq!(expected_word, "nǚ");
     }
 }

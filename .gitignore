@@ -1,3 +1,4 @@
 /target
 cedict.csv
 cedict.json
+.DS_Store
