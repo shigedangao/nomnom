@@ -3,6 +3,7 @@ use std::fs;
 
 mod cedict;
 mod error;
+mod hsk;
 mod util;
 
 #[derive(Debug, ValueEnum, Clone)]
@@ -11,11 +12,21 @@ enum OutputFormat {
     Json
 }
 
-#[derive(Debug, Parser)]
-#[clap(author = "shigedangao", version = "0.1.0", about = "parsing cedict.u8 to csv")]
+#[derive(Parser)]
+#[command(name = "nomnom")]
+#[command(bin_name = "nomnom")]
+enum Generator {
+    Generate(CliArgs)
+}
+
+#[derive(clap::Args)]
+#[command(author = "shigedangao", version = "0.1.1", about = "parsing cedict.u8 to csv")]
 struct CliArgs {
     #[clap(short, long, value_parser)]
     cedict_path: String,
+
+    #[clap(short, long, value_parser)]
+    zh_hsk_path: String,
 
     #[clap(short, long, value_parser)]
     output_path: String,
@@ -25,9 +36,18 @@ struct CliArgs {
 }
 
 fn main() {
-    let args = CliArgs::parse();
+    let Generator::Generate(args) = Generator::parse();
 
-    let items = cedict::Cedict::parse(&args.cedict_path);
+    // load the hsk file which will be used to add to the level.
+    let hsk = match hsk::from_csv(&args.zh_hsk_path) {
+        Ok(v) => v,
+        Err(err) => {
+            println!("Unable to load the hsk dictionary: {err}");
+            return;
+        }
+    };
+
+    let items = cedict::Cedict::parse(&args.cedict_path, hsk);
     if let Err(err) = items {
         println!("Unable to parse the cc-cedict dictionary: {err}");
         return;

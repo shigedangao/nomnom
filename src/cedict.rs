@@ -1,10 +1,11 @@
 use std::{
     fs::File,
-    io::BufReader,
+    io::{BufReader, BufRead},
+    collections::HashMap,
 };
 use serde::Serialize;
 use crate::error::Error;
-use std::io::BufRead;
+use crate::hsk::HSKLevel;
 
 // constant
 const NB_SIGN_CHARACTER_CEDICT: char = '#';
@@ -39,7 +40,8 @@ pub struct Cedict {
     simplified_chinese: String,
     pinyin: String,
     pinyin_accent: String,
-    translations: String
+    translations: String,
+    level: Option<HSKLevel>
 }
 
 impl Cedict {
@@ -48,7 +50,7 @@ impl Cedict {
     /// # Arguments
     /// 
     /// * `cedict_path` - &str
-    pub fn parse(cedict_path: &str) -> Result<Vec<Cedict>, Error> {
+    pub fn parse(cedict_path: &str, hsk: HashMap<String, Option<HSKLevel>>) -> Result<Vec<Cedict>, Error> {
         let file = File::open(cedict_path)?;
         // read the cedict line by line
         let buffer = BufReader::new(file);
@@ -72,6 +74,10 @@ impl Cedict {
                 if let Some((pinyin, rest)) = reminder.split_once(RIGHT_BRACKET_CHARACTER) {
                     item.pinyin = pinyin.to_owned().replace(LEFT_BRACKET_CHARACTER, "");
                     reminder = rest.trim();
+                }
+
+                if let Some(level) = hsk.get(&item.simplified_chinese) {
+                    item.level = level.clone();
                 }
 
                 item.translations = reminder.to_string();
