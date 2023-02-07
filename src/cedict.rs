@@ -174,7 +174,7 @@ fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
     // loop through the chars_vec to edit the char and then create a string
     for (idx, ch) in chars_vec.into_iter().enumerate() {
         if idx == vowel_position {
-            pinyin_vec.push(format!("{}{}", ch, tone));
+            pinyin_vec.push(format!("{ch}{tone}"));
         } else {
             pinyin_vec.push(ch.to_string());
         }
@@ -203,7 +203,7 @@ fn replace_collon_tone_with_accent(word: &str) -> String {
         _ => NEUTRAL_TONE_U
     };
 
-    format!("{}{}", part, char_with_tone_marker)
+    format!("{part}{char_with_tone_marker}")
 }
 
 /// Get the vowel position which will be use to add the tone marker

@@ -58,11 +58,7 @@ pub fn from_csv(path: &str) -> Result<HashMap<String, Option<HSKLevel>>, Error> 
             // The hsk.csv is formatted as follow
             // "<char> (level)"
             // "愛 （一级）"
-            let zipped = splitted
-                .first()
-                .zip(splitted.get(1));
-
-            if let Some((character, level)) = zipped {
+            if let (Some(character), Some(level)) = (splitted.first(), splitted.get(1)) {
                 hsk.insert(character.to_string(), HSKLevel::from_string(level));
             }
         }
