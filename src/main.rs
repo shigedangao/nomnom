@@ -20,7 +20,7 @@ enum Generator {
 }
 
 #[derive(clap::Args)]
-#[command(author = "shigedangao", version = "0.1.1", about = "parsing cedict.u8 to csv")]
+#[command(author = "shigedangao", version = "0.1.2", about = "parsing cedict.u8 to csv")]
 struct CliArgs {
     #[clap(short, long, value_parser)]
     cedict_path: String,
