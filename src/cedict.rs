@@ -6,6 +6,7 @@ use std::{
 use serde::Serialize;
 use crate::error::Error;
 use crate::hsk::HSKLevel;
+use crate::indic::IndicHandler;
 
 // constant
 const NB_SIGN_CHARACTER_CEDICT: char = '#';
@@ -52,9 +53,14 @@ impl Cedict {
     /// * `cedict_path` - &str
     pub fn parse(cedict_path: &str, hsk: HashMap<String, Option<HSKLevel>>) -> Result<Vec<Cedict>, Error> {
         let file = File::open(cedict_path)?;
-        // read the cedict line by line
         let buffer = BufReader::new(file);
         let mut items = Vec::new();
+
+        println!("🈷️ Processing Cedic file");
+    
+        let cedict_lines = Cedict::count_total_lines(cedict_path)?;
+        let mut pb = IndicHandler::new(cedict_lines, "Finish processing Cedic");
+        pb.set_style()?;    
 
         for line in buffer.lines() {
             if let Some(content) = Self::skip_line(line) {
@@ -85,6 +91,8 @@ impl Cedict {
                 item.convert_pinyin_to_acccent()?;
                 items.push(item);
             }
+
+            pb.increase();
         }
 
         Ok(items)
@@ -136,6 +144,20 @@ impl Cedict {
         self.pinyin_accent = pinyin_list_accent.join(" ");
 
         Ok(())
+    }
+
+    /// Count the total number of lines in the cedict file
+    /// 
+    /// # Arguments
+    /// 
+    /// * `cedict_path` - &str
+    fn count_total_lines(cedict_path: &str) -> Result<u64, Error> {
+        let file = File::open(cedict_path)?;
+        let buffer = BufReader::new(file);
+        
+        let size = buffer.lines().count() as u64;
+
+        Ok(size)
     }
 }
 
