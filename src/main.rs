@@ -5,6 +5,7 @@ mod cedict;
 mod error;
 mod hsk;
 mod util;
+mod indic;
 
 #[derive(Debug, ValueEnum, Clone)]
 enum OutputFormat {

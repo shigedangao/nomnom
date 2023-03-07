@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use serde::Serialize;
-use crate::error::Error;
+use crate::{error::Error, indic::IndicHandler};
 
 const CHINESE_LEFT_PEN: &str = "（";
 const CHINESE_RIGHT_PEN: &str = "）";
@@ -50,6 +50,11 @@ pub fn from_csv(path: &str) -> Result<HashMap<String, Option<HSKLevel>>, Error> 
     let mut reader = csv::Reader::from_reader(file.as_bytes());
     let mut hsk = HashMap::new();
 
+    println!("🀄️ Processing HSK file");
+
+    let mut pb = IndicHandler::new(file.lines().count() as u64, "Finish processing HSK");
+    pb.set_style()?;
+
     for res in reader.records() {
         let record = res?;
         if let Some(content) = record.get(0) {
@@ -62,6 +67,8 @@ pub fn from_csv(path: &str) -> Result<HashMap<String, Option<HSKLevel>>, Error> 
                 hsk.insert(character.to_string(), HSKLevel::from_string(level));
             }
         }
+
+        pb.increase();
     }
 
     Ok(hsk)

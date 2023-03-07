@@ -4,7 +4,8 @@ use std::io;
 pub enum Error {
     Io(String),
     Serialize(String),
-    Numeral
+    Numeral,
+    Indic(String)
 }
 
 impl std::fmt::Display for Error {
@@ -12,7 +13,8 @@ impl std::fmt::Display for Error {
         match self {
             Error::Io(msg) => write!(f, "Error while doing I/O operations: {msg}"),
             Error::Serialize(msg) => write!(f, "Unable to serialize items due to: {msg}"),
-            Error::Numeral => write!(f, "No numeral value has been found")
+            Error::Numeral => write!(f, "No numeral value has been found"),
+            Error::Indic(msg) => write!(f, "Unable to create progress bar due to: {msg}")
         }
     }
 }
