@@ -5,7 +5,7 @@ pub enum Error {
     Io(String),
     Serialize(String),
     Numeral,
-    Indic(String)
+    Process(String),
 }
 
 impl std::fmt::Display for Error {
@@ -14,7 +14,7 @@ impl std::fmt::Display for Error {
             Error::Io(msg) => write!(f, "Error while doing I/O operations: {msg}"),
             Error::Serialize(msg) => write!(f, "Unable to serialize items due to: {msg}"),
             Error::Numeral => write!(f, "No numeral value has been found"),
-            Error::Indic(msg) => write!(f, "Unable to create progress bar due to: {msg}")
+            Error::Process(msg) => write!(f, "Unable to process cedict file due to: {msg}"),
         }
     }
 }
