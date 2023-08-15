@@ -1,11 +1,9 @@
+use crate::error::Error;
+use crate::log::Logger;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use serde::Serialize;
-use crate::{error::Error, indic::IndicHandler};
 
-const CHINESE_LEFT_PEN: &str = "（";
-const CHINESE_RIGHT_PEN: &str = "）";
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HSKLevel {
     #[default]
     HSK1,
@@ -13,62 +11,70 @@ pub enum HSKLevel {
     HSK3,
     HSK4,
     HSK5,
-    HSK6
+    HSK6,
+    HSK7_9,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct HskData {
+    level: String,
+    #[serde(rename(deserialize = "character"))]
+    s_character: String,
 }
 
 impl HSKLevel {
     /// Get the HSKLevel based on the given string
-    /// 
+    ///
     /// # Arguments
-    /// 
-    /// * `level` - &str
-    fn from_string(level: &str) -> Option<HSKLevel> {
-        // clean the level string of parentheses
-        let cleaned_level = level
-            .replace(CHINESE_LEFT_PEN, "")
-            .replace(CHINESE_RIGHT_PEN, "");
-
-        match cleaned_level.trim() {
-            "一级" => Some(HSKLevel::HSK1),
-            "二级" => Some(HSKLevel::HSK2),
-            "三级" => Some(HSKLevel::HSK3),
-            "四级" => Some(HSKLevel::HSK4),
-            "五级" => Some(HSKLevel::HSK5),
-            "六级" => Some(HSKLevel::HSK6),
-            &_ => None
+    ///
+    /// * `level` - S
+    fn from_string<S>(level: S) -> HSKLevel
+    where
+        S: AsRef<str>,
+    {
+        match level.as_ref() {
+            "hsk1" => HSKLevel::HSK1,
+            "hsk2" => HSKLevel::HSK2,
+            "hsk3" => HSKLevel::HSK3,
+            "hsk4" => HSKLevel::HSK4,
+            "hsk5" => HSKLevel::HSK5,
+            "hsk6" => HSKLevel::HSK6,
+            "hsk7-9" => HSKLevel::HSK7_9,
+            _ => HSKLevel::HSK1,
         }
     }
 }
 
-/// Get a list of chinese character and it's associated HSK level based on the HSK-2012.csv
-/// 
+/// Get a list of chinese character and it's associated HSK level based on the generated hsk.csv.
+/// If no hsk.csv is founded then we return an empty hashmap.
+///
 /// # Arguments
-/// 
-/// * `path` - &str
-pub fn from_csv(path: &str) -> Result<HashMap<String, Option<HSKLevel>>, Error> {
-    let file = std::fs::read_to_string(path)?;
-    let mut reader = csv::Reader::from_reader(file.as_bytes());
+///
+/// * `path` - S
+pub fn from_csv<S>(path: S) -> Result<HashMap<String, HSKLevel>, Error>
+where
+    S: AsRef<str>,
+{
+    let file = match std::fs::read_to_string(path.as_ref()) {
+        Ok(file) => file,
+        Err(err) => {
+            Logger::warn(format!("Unable to found the cedict file, {}", err));
+
+            return Ok(HashMap::new());
+        }
+    };
+
+    let mut reader = csv::ReaderBuilder::new()
+        .delimiter(b';')
+        .from_reader(file.as_bytes());
+
     let mut hsk = HashMap::new();
 
     println!("🀄️ Processing HSK file");
 
-    let mut pb = IndicHandler::new(file.lines().count() as u64, "Finish processing HSK");
-    pb.set_style()?;
-
-    for res in reader.records() {
-        let record = res?;
-        if let Some(content) = record.get(0) {
-            // split the content in two by space
-            let splitted: Vec<&str> = content.split(CHINESE_LEFT_PEN).collect();
-            // The hsk.csv is formatted as follow
-            // "<char> (level)"
-            // "愛 （一级）"
-            if let (Some(character), Some(level)) = (splitted.first(), splitted.get(1)) {
-                hsk.insert(character.to_string(), HSKLevel::from_string(level));
-            }
-        }
-
-        pb.increase();
+    for res in reader.deserialize() {
+        let record: HskData = res?;
+        hsk.insert(record.s_character, HSKLevel::from_string(record.level));
     }
 
     Ok(hsk)
@@ -80,16 +86,16 @@ mod tests {
 
     #[test]
     fn expect_to_get_hsk_level() {
-        let vec = from_csv("./HSK-2012.csv");
+        let vec: Result<HashMap<String, HSKLevel>, Error> = from_csv("./static/hsk_test.csv");
 
         assert!(vec.is_ok());
 
         let hsk = vec.unwrap();
 
         let hsk1 = hsk.get("水果").unwrap();
-        assert_eq!(hsk1.as_ref().unwrap(), &HSKLevel::HSK1);
+        assert_eq!(hsk1, &HSKLevel::HSK1);
 
         let hsk6 = hsk.get("包装").unwrap();
-        assert_eq!(hsk6.as_ref().unwrap(), &HSKLevel::HSK6);
+        assert_eq!(hsk6, &HSKLevel::HSK5);
     }
 }

@@ -7,8 +7,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug",
+            "name": "Rust",
             "program": "${workspaceFolder}/target/debug/nomnom --cedict-path ./cedict_ts.u8 -o ./cedict.json -f json",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "name": "Python",
+            "program": "${workspaceFolder}/scrapper/scrapper.py",
             "args": [],
             "cwd": "${workspaceFolder}"
         }
