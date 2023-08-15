@@ -1,4 +1,5 @@
 use crate::error::Error;
+use crate::log::Logger;
 use cedict::parse_cedict_file;
 use clap::{Parser, ValueEnum};
 use std::fs;
@@ -6,6 +7,7 @@ use std::fs;
 mod cedict;
 mod error;
 mod hsk;
+mod log;
 mod util;
 
 #[derive(Debug, ValueEnum, Clone)]
@@ -24,7 +26,7 @@ enum Generator {
 #[derive(clap::Args)]
 #[command(
     author = "shigedangao",
-    version = "0.1.3",
+    version = "0.2.0",
     about = "parsing cedict.u8 to csv"
 )]
 struct CliArgs {
@@ -50,10 +52,7 @@ fn main() {
         .and_then(|res| parse_cedict_file(&args.cedict_path, res))
     {
         Ok(res) => res,
-        Err(err) => {
-            println!("Unable to process files {err}");
-            return;
-        }
+        Err(err) => return Logger::error("Unable to process files", err),
     };
 
     let output = match args.format {
@@ -62,8 +61,11 @@ fn main() {
     };
 
     if let Err(err) = output.and_then(|c| fs::write(args.output_path, c).map_err(Error::from)) {
-        println!("Unable to convert the cc-cedict for the targeted format: {err}");
+        return Logger::error(
+            "Unable to convert the cc-cedict for the targeted format",
+            err,
+        );
     }
 
-    println!("Generation done ✅")
+    Logger::success("Generation done");
 }

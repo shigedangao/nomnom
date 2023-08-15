@@ -1,4 +1,5 @@
 use crate::error::Error;
+use crate::log::Logger;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -44,7 +45,8 @@ impl HSKLevel {
     }
 }
 
-/// Get a list of chinese character and it's associated HSK level based on the HSK-2012.csv
+/// Get a list of chinese character and it's associated HSK level based on the generated hsk.csv.
+/// If no hsk.csv is founded then we return an empty hashmap.
 ///
 /// # Arguments
 ///
@@ -53,7 +55,15 @@ pub fn from_csv<S>(path: S) -> Result<HashMap<String, HSKLevel>, Error>
 where
     S: AsRef<str>,
 {
-    let file = std::fs::read_to_string(path.as_ref())?;
+    let file = match std::fs::read_to_string(path.as_ref()) {
+        Ok(file) => file,
+        Err(err) => {
+            Logger::warn(format!("Unable to found the cedict file, {}", err));
+
+            return Ok(HashMap::new());
+        }
+    };
+
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(b';')
         .from_reader(file.as_bytes());
@@ -76,7 +86,7 @@ mod tests {
 
     #[test]
     fn expect_to_get_hsk_level() {
-        let vec = from_csv("./hsk.csv");
+        let vec: Result<HashMap<String, HSKLevel>, Error> = from_csv("./static/hsk_test.csv");
 
         assert!(vec.is_ok());
 

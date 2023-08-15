@@ -1,5 +1,6 @@
 use crate::error::Error;
 use crate::hsk::HSKLevel;
+use crate::log::Logger;
 use serde::Serialize;
 use std::{
     collections::HashMap,
@@ -10,9 +11,7 @@ use std::{
 
 // constant
 const VALID_LINE_FILTER: [char; 2] = ['#', '%'];
-const EMPTY_SPACE_CHARACTER: char = ' ';
-const LEFT_BRACKET_CHARACTER: char = '[';
-const RIGHT_BRACKET_CHARACTER: char = ']';
+const BRACKET: [char; 2] = ['[', ']'];
 const SPACE_SEPARATOR: &str = " ";
 
 // constant for vowels
@@ -37,16 +36,21 @@ pub struct Cedict {
     level: Option<HSKLevel>,
 }
 
-// TODO use rayon to process the file faster
+/// Parse and process each line of the cedict file
+///
+/// # Arguments
+///
+/// * `path` - &str
+/// * `hsk` - HashMap<String, HSKLevel>
 pub fn parse_cedict_file(path: &str, hsk: HashMap<String, HSKLevel>) -> Result<Vec<Cedict>, Error> {
     let file = File::open(path)?;
     let buffer = BufReader::new(file);
     let mut items = Vec::new();
 
-    // Initialize the cell
+    // Initialize the tones lock
     prepare_tones();
 
-    println!("🈷️ Processing Cedic file");
+    Logger::info("🈷️ Processing Cedic file");
 
     for line in buffer.lines() {
         let unprocessed_line = line?;
@@ -55,6 +59,7 @@ pub fn parse_cedict_file(path: &str, hsk: HashMap<String, HSKLevel>) -> Result<V
             items.push(item);
         }
     }
+
     Ok(items)
 }
 
@@ -66,30 +71,41 @@ impl Cedict {
     /// * `line` - String
     /// * `hsk` - &HashMap<String, HSKLevel>
     pub fn parse(content: String, hsk: &HashMap<String, HSKLevel>) -> Result<Self, Error> {
-        // Could do that in a thread
-        let mut reminder = "";
-        let mut item = Cedict::default();
+        let splitted_whitespace_res = content.split_whitespace().collect::<Vec<&str>>();
+        let Some(tw_char) = splitted_whitespace_res.first() else {
+            return Err(Error::Process("Unable to get the traditional chinese character".to_string()));
+        };
 
-        if let Some((tw_character, rest)) = content.split_once(EMPTY_SPACE_CHARACTER) {
-            item.traditional_chinese = tw_character.to_owned();
-            reminder = rest;
+        let Some(cn_char) = splitted_whitespace_res.get(1) else {
+            return Err(Error::Process("Unable to get the simplified chinese character".to_string()));
+        };
+
+        let Some(pinyin) = splitted_whitespace_res.get(2)
+            .map(|v| v.replace(BRACKET, "")) else {
+                return Err(Error::Process("Unable to found the pinyin".to_string()));
+            };
+
+        let reminder = splitted_whitespace_res
+            .get(3..)
+            .unwrap_or_default()
+            .join(SPACE_SEPARATOR);
+
+        let mut item = Cedict {
+            traditional_chinese: tw_char.to_string(),
+            simplified_chinese: cn_char.to_string(),
+            pinyin,
+            translations: reminder,
+            ..Default::default()
+        };
+
+        match hsk.get(&item.simplified_chinese) {
+            Some(level) => item.level = Some(level.clone()),
+            None => Logger::warn(format!(
+                "{} has not been founded in the hsk dictionnary",
+                item.simplified_chinese
+            )),
         }
 
-        if let Some((sf_character, rest)) = reminder.split_once(EMPTY_SPACE_CHARACTER) {
-            item.simplified_chinese = sf_character.to_owned();
-            reminder = rest;
-        }
-
-        if let Some((pinyin, rest)) = reminder.split_once(RIGHT_BRACKET_CHARACTER) {
-            item.pinyin = pinyin.replace(LEFT_BRACKET_CHARACTER, "");
-            reminder = rest.trim();
-        }
-
-        if let Some(level) = hsk.get(&item.simplified_chinese) {
-            item.level = Some(level.clone());
-        }
-
-        item.translations = reminder.to_string();
         // convert a pinyin w/o accent to a pinyin with accent
         item.convert_pinyin_to_acccent()?;
 
@@ -103,7 +119,7 @@ impl Cedict {
     /// * `&mut self` - Self
     fn convert_pinyin_to_acccent(&mut self) -> Result<(), Error> {
         // get a list of pinyin (cedict can provide many pinyin for a single character)
-        let words = self.pinyin.split(SPACE_SEPARATOR);
+        let words = self.pinyin.split_whitespace();
         let mut pinyin_list_accent = Vec::new();
         for word in words {
             // loop through each character of the pinyin word to find if it has any numeric value
@@ -199,8 +215,8 @@ fn replace_collon_tone_with_accent(word: &str) -> Result<String, Error> {
 fn get_vowel_position(vowel_count: usize, vowels: &[char]) -> Result<usize, Error> {
     match vowel_count {
         1 => match vowels.iter().position(|c| VOWEL.contains(c)) {
-            Some(vp) => return Ok(vp),
-            None => return Err(Error::Process("Vowel does not has one vowel".to_string())),
+            Some(vp) => Ok(vp),
+            None => Err(Error::Process("Vowel does not has one vowel".to_string())),
         },
         _ => {
             for (idx, c) in vowels.iter().enumerate() {
@@ -248,11 +264,32 @@ fn prepare_tones() {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
+    #[test]
+    fn expect_to_parse_cedict_line() {
+        let line = r"一動不動 一动不动 [yi1 dong4 bu4 dong4] /motionless/";
+        let mm = HashMap::new();
+
+        // Initialize the tones
+        super::prepare_tones();
+
+        let cedict = super::Cedict::parse(line.to_string(), &mm);
+        assert!(cedict.is_ok());
+
+        let res = cedict.unwrap();
+
+        assert_eq!(res.traditional_chinese, "一動不動");
+        assert_eq!(res.simplified_chinese, "一动不动");
+        assert_eq!(res.pinyin, "yi1");
+        assert_eq!(res.pinyin_accent, "yi\u{304}");
+    }
 
     #[test]
     fn expect_to_convert_numeri_pinyin_to_accent() {
         let word = "xian1";
 
+        super::prepare_tones();
         let expected_word = super::replace_vowel_with_accent(word).unwrap();
         assert_eq!(expected_word, "xiān");
     }
@@ -261,6 +298,7 @@ mod tests {
     fn expect_to_convert_simple_pinyin_to_accent() {
         let word = "chi1";
 
+        super::prepare_tones();
         let expected_word = super::replace_vowel_with_accent(word).unwrap();
         assert_eq!(expected_word, "chī");
     }
