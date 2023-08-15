@@ -73,28 +73,33 @@ impl Cedict {
     pub fn parse(content: String, hsk: &HashMap<String, HSKLevel>) -> Result<Self, Error> {
         let splitted_whitespace_res = content.split_whitespace().collect::<Vec<&str>>();
         let Some(tw_char) = splitted_whitespace_res.first() else {
-            return Err(Error::Process("Unable to get the traditional chinese character".to_string()));
+            return Err(Error::Process("Unable to get the traditional chinese character".to_string()))
         };
 
         let Some(cn_char) = splitted_whitespace_res.get(1) else {
-            return Err(Error::Process("Unable to get the simplified chinese character".to_string()));
+            return Err(Error::Process("Unable to get the simplified chinese character".to_string()))
         };
 
-        let Some(pinyin) = splitted_whitespace_res.get(2)
-            .map(|v| v.replace(BRACKET, "")) else {
-                return Err(Error::Process("Unable to found the pinyin".to_string()));
-            };
-
-        let reminder = splitted_whitespace_res
-            .get(3..)
+        // assuming that the pinyin start with the brackets..
+        // join the reminder
+        let rest = splitted_whitespace_res
+            .get(2..)
             .unwrap_or_default()
             .join(SPACE_SEPARATOR);
+
+        let remainder = rest.split(BRACKET).collect::<Vec<&str>>();
+
+        let Some(pinyin) = remainder.get(1) else {
+            return Err(Error::Process("Unable to found the pinyin".to_string()))
+        };
+
+        let reminder = remainder.get(2..).unwrap_or_default().join(SPACE_SEPARATOR);
 
         let mut item = Cedict {
             traditional_chinese: tw_char.to_string(),
             simplified_chinese: cn_char.to_string(),
-            pinyin,
-            translations: reminder,
+            pinyin: pinyin.to_string(),
+            translations: reminder.trim().to_string(),
             ..Default::default()
         };
 
@@ -281,8 +286,12 @@ mod tests {
 
         assert_eq!(res.traditional_chinese, "一動不動");
         assert_eq!(res.simplified_chinese, "一动不动");
-        assert_eq!(res.pinyin, "yi1");
-        assert_eq!(res.pinyin_accent, "yi\u{304}");
+        assert_eq!(res.pinyin, "yi1 dong4 bu4 dong4");
+        assert_eq!(
+            res.pinyin_accent,
+            "yi\u{304} do\u{300}ng bu\u{300} do\u{300}ng"
+        );
+        assert_eq!(res.translations, "/motionless/");
     }
 
     #[test]
