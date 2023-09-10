@@ -1,6 +1,7 @@
 use crate::error::Error;
 use crate::hsk::HSKLevel;
 use crate::log::Logger;
+use crate::zhuyin;
 use serde::Serialize;
 use std::{
     collections::HashMap,
@@ -33,6 +34,7 @@ pub struct Cedict {
     pinyin: String,
     pinyin_accent: String,
     translations: String,
+    zhuyin: String,
     level: Option<HSKLevel>,
 }
 
@@ -49,6 +51,8 @@ pub fn parse_cedict_file(path: &str, hsk: HashMap<String, HSKLevel>) -> Result<V
 
     // Initialize the tones lock
     prepare_tones();
+    // Initialize zhuyin initials
+    zhuyin::initials::initialize_initials_tables();
 
     Logger::info("🈷️ Processing Cedic file");
 
@@ -113,6 +117,8 @@ impl Cedict {
 
         // convert a pinyin w/o accent to a pinyin with accent
         item.convert_pinyin_to_acccent()?;
+        // convert the pinyin to zhuyin
+        item.convert_pinyin_to_zhuyin()?;
 
         Ok(item)
     }
@@ -144,6 +150,29 @@ impl Cedict {
         }
 
         self.pinyin_accent = pinyin_list_accent.join(SPACE_SEPARATOR);
+
+        Ok(())
+    }
+
+    /// Convert the generated piyin with accent into a bopomofo representation
+    /// 
+    /// # Arguments
+    /// 
+    /// * `&mut Self`
+    fn convert_pinyin_to_zhuyin(&mut self) -> Result<(), Error> {
+        let pinyin_accents_vec = self.pinyin_accent
+            .split(SPACE_SEPARATOR)
+            .collect::<Vec<_>>();
+
+        let mut bopomofo = Vec::new();
+
+        for p in pinyin_accents_vec {
+            let res = zhuyin::get_zhuyin_from_pinyin(&p)?;
+            bopomofo.push(res);
+        }
+
+        let bopomofo = bopomofo.join(SPACE_SEPARATOR);
+        self.zhuyin = bopomofo.trim().to_string();
 
         Ok(())
     }
@@ -270,14 +299,17 @@ fn prepare_tones() {
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use crate::hsk::HSKLevel;
 
     #[test]
     fn expect_to_parse_cedict_line() {
         let line = r"一動不動 一动不动 [yi1 dong4 bu4 dong4] /motionless/";
-        let mm = HashMap::new();
+        let mut mm = HashMap::new();
+        mm.insert("一动不动".to_string(), HSKLevel::HSK1);
 
         // Initialize the tones
         super::prepare_tones();
+        super::zhuyin::initials::initialize_initials_tables();
 
         let cedict = super::Cedict::parse(line.to_string(), &mm);
         assert!(cedict.is_ok());
@@ -292,6 +324,7 @@ mod tests {
             "yi\u{304} do\u{300}ng bu\u{300} do\u{300}ng"
         );
         assert_eq!(res.translations, "/motionless/");
+        assert_eq!(res.zhuyin, "ㄧ ㄉㄨㄥ\u{300} ㄅㄨ\u{300} ㄉㄨㄥ\u{300}");
     }
 
     #[test]

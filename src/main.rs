@@ -4,6 +4,7 @@ use cedict::parse_cedict_file;
 use clap::{Parser, ValueEnum};
 use std::fs;
 
+mod zhuyin;
 mod cedict;
 mod error;
 mod hsk;
@@ -26,7 +27,7 @@ enum Generator {
 #[derive(clap::Args)]
 #[command(
     author = "shigedangao",
-    version = "0.2.0",
+    version = "0.2.1",
     about = "parsing cedict.u8 to csv"
 )]
 struct CliArgs {
