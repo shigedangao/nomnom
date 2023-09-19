@@ -1,5 +1,5 @@
-use std::sync::OnceLock;
 use std::collections::{HashMap, HashSet};
+use std::sync::OnceLock;
 
 // Provided by
 // @link https://www.omniglot.com/chinese/zhuyin.htm
@@ -63,7 +63,7 @@ fn initialize_medials() {
         finals.insert("ang", "ㄤ");
         finals.insert("eng", "ㄥ");
         finals.insert("ong", "ㄨㄥ");
-        
+
         finals.insert("yi", "ㄧ");
         finals.insert("i", "ㄧ");
         finals.insert("ya", "ㄧㄚ");
@@ -115,7 +115,6 @@ fn initialize_medials() {
     });
 }
 
-
 fn initialize_accents() {
     ACCENTS.get_or_init(|| {
         let mut accents = HashSet::new();
@@ -126,4 +125,3 @@ fn initialize_accents() {
         accents
     });
 }
-

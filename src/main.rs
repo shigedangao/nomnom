@@ -4,12 +4,12 @@ use cedict::parse_cedict_file;
 use clap::{Parser, ValueEnum};
 use std::fs;
 
-mod zhuyin;
 mod cedict;
 mod error;
 mod hsk;
 mod log;
 mod util;
+mod zhuyin;
 
 #[derive(Debug, ValueEnum, Clone)]
 enum OutputFormat {

@@ -77,11 +77,15 @@ impl Cedict {
     pub fn parse(content: String, hsk: &HashMap<String, HSKLevel>) -> Result<Self, Error> {
         let splitted_whitespace_res = content.split_whitespace().collect::<Vec<&str>>();
         let Some(tw_char) = splitted_whitespace_res.first() else {
-            return Err(Error::Process("Unable to get the traditional chinese character".to_string()))
+            return Err(Error::Process(
+                "Unable to get the traditional chinese character".to_string(),
+            ));
         };
 
         let Some(cn_char) = splitted_whitespace_res.get(1) else {
-            return Err(Error::Process("Unable to get the simplified chinese character".to_string()))
+            return Err(Error::Process(
+                "Unable to get the simplified chinese character".to_string(),
+            ));
         };
 
         // assuming that the pinyin start with the brackets..
@@ -94,7 +98,7 @@ impl Cedict {
         let remainder = rest.split(BRACKET).collect::<Vec<&str>>();
 
         let Some(pinyin) = remainder.get(1) else {
-            return Err(Error::Process("Unable to found the pinyin".to_string()))
+            return Err(Error::Process("Unable to found the pinyin".to_string()));
         };
 
         let reminder = remainder.get(2..).unwrap_or_default().join(SPACE_SEPARATOR);
@@ -155,19 +159,20 @@ impl Cedict {
     }
 
     /// Convert the generated piyin with accent into a bopomofo representation
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `&mut Self`
     fn convert_pinyin_to_zhuyin(&mut self) -> Result<(), Error> {
-        let pinyin_accents_vec = self.pinyin_accent
+        let pinyin_accents_vec = self
+            .pinyin_accent
             .split(SPACE_SEPARATOR)
             .collect::<Vec<_>>();
 
         let mut bopomofo = Vec::new();
 
         for p in pinyin_accents_vec {
-            let res = zhuyin::get_zhuyin_from_pinyin(&p)?;
+            let res = zhuyin::get_zhuyin_from_pinyin(p)?;
             bopomofo.push(res);
         }
 
@@ -199,7 +204,9 @@ fn replace_vowel_with_accent(word: &str) -> Result<String, Error> {
     // count number of vowel in a sentence
     let vowel_count = chars_vec.iter().filter(|c| VOWEL.contains(c)).count();
     let Some(tones) = TONES_ACCENT.get() else {
-        return Err(Error::Process("Unable to retrieve the tones accent".to_string()))
+        return Err(Error::Process(
+            "Unable to retrieve the tones accent".to_string(),
+        ));
     };
 
     let tone = tones.get(&numeric).unwrap_or(&"");
@@ -232,7 +239,7 @@ fn replace_collon_tone_with_accent(word: &str) -> Result<String, Error> {
     let (part, tone_marker) = word.split_at(word.len() - 3);
 
     let Some(tones) = TONES_U.get() else {
-        return Err(Error::Process("Unable to get the tones".to_string()))
+        return Err(Error::Process("Unable to get the tones".to_string()));
     };
 
     let char_with_tone_marker = *tones.get(tone_marker).unwrap_or(&NEUTRAL_TONE_U);
@@ -298,8 +305,8 @@ fn prepare_tones() {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use crate::hsk::HSKLevel;
+    use std::collections::HashMap;
 
     #[test]
     fn expect_to_parse_cedict_line() {
