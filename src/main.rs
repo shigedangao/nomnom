@@ -8,6 +8,7 @@ mod cedict;
 mod error;
 mod hsk;
 mod log;
+mod pinyin;
 mod util;
 mod zhuyin;
 
