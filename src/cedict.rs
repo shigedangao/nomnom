@@ -2,6 +2,7 @@ use crate::error::Error;
 use crate::hsk::HSKLevel;
 use crate::log::Logger;
 use crate::pinyin;
+use crate::wade_giles;
 use crate::zhuyin;
 use serde::Serialize;
 use std::{
@@ -26,6 +27,7 @@ pub struct Cedict {
     pinyin_accent: String,
     translations: String,
     zhuyin: String,
+    wade: String,
     level: Option<HSKLevel>,
 }
 
@@ -112,6 +114,8 @@ impl Cedict {
         item.convert_pinyin_to_acccent()?;
         // convert the pinyin to zhuyin
         item.convert_pinyin_to_zhuyin()?;
+        // convert a regular pinyin to a wade giles
+        item.convert_pinyin_to_wades()?;
 
         Ok(item)
     }
@@ -170,6 +174,18 @@ impl Cedict {
 
         Ok(())
     }
+
+    /// Converting a pinyin to a wade value
+    ///
+    /// # Arguments
+    ///
+    /// * `&mut self`
+    fn convert_pinyin_to_wades(&mut self) -> Result<(), Error> {
+        let wade = wade_giles::convert_cedict_pinyin_sentence_to_wade(&self.pinyin)?;
+        self.wade = wade;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -200,5 +216,6 @@ mod tests {
         );
         assert_eq!(res.translations, "/motionless/");
         assert_eq!(res.zhuyin, "ㄧ ㄉㄨㄥ\u{300} ㄅㄨ\u{300} ㄉㄨㄥ\u{300}");
+        assert_eq!(res.wade, "i1 tung4 pu4 tung4");
     }
 }

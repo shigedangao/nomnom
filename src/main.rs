@@ -10,6 +10,7 @@ mod hsk;
 mod log;
 mod pinyin;
 mod util;
+mod wade_giles;
 mod zhuyin;
 
 #[derive(Debug, ValueEnum, Clone)]
