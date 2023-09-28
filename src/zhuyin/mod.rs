@@ -9,9 +9,13 @@ pub(crate) mod initials;
 ///
 /// # Arguments
 ///
-/// * `pinyin` - &str
-pub fn get_zhuyin_from_pinyin(pinyin: &str) -> Result<String, Error> {
-    let mut normalized = pinyin.nfd().map(|c| c.to_string()).collect::<Vec<String>>();
+/// * `pinyin` - S
+pub fn get_zhuyin_from_pinyin<S: AsRef<str>>(pinyin: S) -> Result<String, Error> {
+    let mut normalized = pinyin
+        .as_ref()
+        .nfd()
+        .map(|c| c.to_string())
+        .collect::<Vec<String>>();
 
     let (i, f, a) = (INITIALS.get(), FINALS.get(), ACCENTS.get());
 
