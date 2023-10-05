@@ -4,6 +4,7 @@ use crate::log::Logger;
 use crate::pinyin;
 use crate::wade_giles;
 use crate::zhuyin;
+use crate::zhuyin::initials;
 use serde::Serialize;
 use std::{
     collections::HashMap,
@@ -42,15 +43,16 @@ pub fn parse_cedict_file(path: &str, hsk: HashMap<String, HSKLevel>) -> Result<V
     let buffer = BufReader::new(file);
     let mut items = Vec::new();
 
-    // Initialize zhuyin initials
-    zhuyin::initials::initialize_initials_tables();
+    // Load the zhuyin files
+    Logger::info("🈶 Load zhuyin character files");
+    let zh = zhuyin::initials::load_zhuyin_accents_files()?;
 
     Logger::info("🈷️ Processing Cedic file");
 
     for line in buffer.lines() {
         let unprocessed_line = line?;
         if !unprocessed_line.starts_with(VALID_LINE_FILTER) {
-            let item = Cedict::parse(unprocessed_line, &hsk)?;
+            let item = Cedict::parse(unprocessed_line, &hsk, &zh)?;
             items.push(item);
         }
     }
@@ -65,7 +67,11 @@ impl Cedict {
     ///
     /// * `line` - String
     /// * `hsk` - &HashMap<String, HSKLevel>
-    pub fn parse(content: String, hsk: &HashMap<String, HSKLevel>) -> Result<Self, Error> {
+    pub fn parse(
+        content: String,
+        hsk: &HashMap<String, HSKLevel>,
+        zh: &initials::ZhuyinConfig,
+    ) -> Result<Self, Error> {
         let splitted_whitespace_res = content.split_whitespace().collect::<Vec<&str>>();
         let Some(tw_char) = splitted_whitespace_res.first() else {
             return Err(Error::Process(
@@ -113,7 +119,7 @@ impl Cedict {
         // convert a pinyin w/o accent to a pinyin with accent
         item.convert_pinyin_to_acccent()?;
         // convert the pinyin to zhuyin
-        item.convert_pinyin_to_zhuyin()?;
+        item.convert_pinyin_to_zhuyin(zh)?;
         // convert a regular pinyin to a wade giles
         item.convert_pinyin_to_wades()?;
 
@@ -156,7 +162,7 @@ impl Cedict {
     /// # Arguments
     ///
     /// * `&mut Self`
-    fn convert_pinyin_to_zhuyin(&mut self) -> Result<(), Error> {
+    fn convert_pinyin_to_zhuyin(&mut self, zh: &initials::ZhuyinConfig) -> Result<(), Error> {
         let pinyin_accents_vec = self
             .pinyin_accent
             .split(SPACE_SEPARATOR)
@@ -165,7 +171,7 @@ impl Cedict {
         let mut bopomofo = Vec::new();
 
         for p in pinyin_accents_vec {
-            let res = zhuyin::get_zhuyin_from_pinyin(p)?;
+            let res = zhuyin::get_zhuyin_from_pinyin(p, zh)?;
             bopomofo.push(res);
         }
 
@@ -199,10 +205,9 @@ mod tests {
         let mut mm = HashMap::new();
         mm.insert("一动不动".to_string(), HSKLevel::HSK1);
 
-        // Initialize the tones
-        super::zhuyin::initials::initialize_initials_tables();
+        let zh = super::zhuyin::initials::load_zhuyin_accents_files().unwrap();
 
-        let cedict = super::Cedict::parse(line.to_string(), &mm);
+        let cedict = super::Cedict::parse(line.to_string(), &mm, &zh);
         assert!(cedict.is_ok());
 
         let res = cedict.unwrap();

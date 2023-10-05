@@ -1,4 +1,3 @@
-use self::initials::{ACCENTS, FINALS, INITIALS};
 use crate::error::Error;
 use std::collections::HashSet;
 use unicode_normalization::UnicodeNormalization;
@@ -10,22 +9,18 @@ pub(crate) mod initials;
 /// # Arguments
 ///
 /// * `pinyin` - S
-pub fn get_zhuyin_from_pinyin<S: AsRef<str>>(pinyin: S) -> Result<String, Error> {
+pub fn get_zhuyin_from_pinyin<S: AsRef<str>>(
+    pinyin: S,
+    zh: &initials::ZhuyinConfig,
+) -> Result<String, Error> {
+    let (initials, finals, accents) = zh;
     let mut normalized = pinyin
         .as_ref()
         .nfd()
         .map(|c| c.to_string())
         .collect::<Vec<String>>();
 
-    let (i, f, a) = (INITIALS.get(), FINALS.get(), ACCENTS.get());
-
-    let (Some(initials), Some(finals), Some(accents)) = (i, f, a) else {
-        return Err(Error::Process(
-            "Unable to retrieve zhuyin parameters".to_string(),
-        ));
-    };
-
-    swap_tones_to_end(&mut normalized, accents);
+    swap_tones_to_end(&mut normalized, &zh.2);
 
     let mut zhuyin_acc = Vec::new();
     let mut buf = String::new();
@@ -122,7 +117,7 @@ pub fn get_zhuyin_from_pinyin<S: AsRef<str>>(pinyin: S) -> Result<String, Error>
 ///
 /// * `words` - &mut Vec<String>
 /// * `accents` - &HashSet<&str>
-fn swap_tones_to_end(words: &mut Vec<String>, accents: &HashSet<&str>) {
+fn swap_tones_to_end(words: &mut Vec<String>, accents: &HashSet<String>) {
     for (idx, c) in words.to_owned().iter().enumerate() {
         if accents.contains(c.as_str()) {
             let accent = words.remove(idx);
@@ -138,41 +133,41 @@ mod tests {
 
     #[test]
     fn expect_to_generate_zhuyin() {
-        super::initials::initialize_initials_tables();
         let pinyin_wo_accent = "néng";
 
-        let zhuyin = super::get_zhuyin_from_pinyin(pinyin_wo_accent).unwrap();
+        let zh = super::initials::load_zhuyin_accents_files().unwrap();
+        let zhuyin = super::get_zhuyin_from_pinyin(pinyin_wo_accent, &zh).unwrap();
         assert_eq!(zhuyin, "ㄋㄥ\u{301}");
     }
 
     #[test]
     fn expect_to_generate_zhuyin_two() {
-        super::initials::initialize_initials_tables();
         let pinyin_wo_accent = "wǒ";
 
-        let zhuyin = super::get_zhuyin_from_pinyin(pinyin_wo_accent).unwrap();
+        let zh = super::initials::load_zhuyin_accents_files().unwrap();
+        let zhuyin = super::get_zhuyin_from_pinyin(pinyin_wo_accent, &zh).unwrap();
         assert_eq!(zhuyin, "ㄨㄛ\u{30c}");
     }
 
     #[test]
     fn expect_to_handle_er() {
-        super::initials::initialize_initials_tables();
         let pinyin = "ér";
 
-        let zhuyin = super::get_zhuyin_from_pinyin(pinyin).unwrap();
+        let zh = super::initials::load_zhuyin_accents_files().unwrap();
+        let zhuyin = super::get_zhuyin_from_pinyin(pinyin, &zh).unwrap();
         assert_eq!(zhuyin, "ㄦ\u{301}");
     }
 
     #[test]
     fn expect_to_generate_pinyin_to_zhuyin_for_sentences() {
-        super::initials::initialize_initials_tables();
-
         let pinyin = "dà jiā hǎo xiàn zài wǒ hǎo léi";
         let pinyins: Vec<&str> = pinyin.split_whitespace().collect();
 
+        let zh = super::initials::load_zhuyin_accents_files().unwrap();
+
         let mut res = Vec::new();
         for pin in pinyins {
-            let zhuyin = super::get_zhuyin_from_pinyin(pin).unwrap();
+            let zhuyin = super::get_zhuyin_from_pinyin(pin, &zh).unwrap();
             res.push(zhuyin);
         }
 
