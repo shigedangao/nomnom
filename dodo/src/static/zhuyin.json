@@ -1,0 +1,341 @@
+{
+	"initials": [
+		{
+			"sound": "b",
+			"value": "ㄅ"
+		},
+		{
+			"sound": "p",
+			"value": "ㄆ"
+		},
+		{
+			"sound": "m",
+			"value": "ㄇ"
+		},
+		{
+			"sound": "f",
+			"value": "ㄈ"
+		},
+		{
+			"sound": "d",
+			"value": "ㄉ"
+		},
+		{
+			"sound": "t",
+			"value": "ㄊ"
+		},
+		{
+			"sound": "n",
+			"value": "ㄋ"
+		},
+		{
+			"sound": "l",
+			"value": "ㄌ"
+		},
+		{
+			"sound": "g",
+			"value": "ㄍ"
+		},
+		{
+			"sound": "k",
+			"value": "ㄎ"
+		},
+		{
+			"sound": "h",
+			"value": "ㄏ"
+		},
+		{
+			"sound": "j",
+			"value": "ㄐ"
+		},
+		{
+			"sound": "q",
+			"value": "ㄑ"
+		},
+		{
+			"sound": "x",
+			"value": "ㄒ"
+		},
+		{
+			"sound": "zh",
+			"value": "ㄓ"
+		},
+		{
+			"sound": "zhi",
+			"value": "ㄓ"
+		},
+		{
+			"sound": "ch",
+			"value": "ㄔ"
+		},
+		{
+			"sound": "chi",
+			"value": "ㄔ"
+		},
+		{
+			"sound": "sh",
+			"value": "ㄕ"
+		},
+		{
+			"sound": "shi",
+			"value": "ㄕ"
+		},
+		{
+			"sound": "r",
+			"value": "ㄖ"
+		},
+		{
+			"sound": "z",
+			"value": "ㄗ"
+		},
+		{
+			"sound": "c",
+			"value": "ㄘ"
+		},
+		{
+			"sound": "s",
+			"value": "ㄙ"
+		}
+	],
+	"finals": [
+		{
+			"sound": "a",
+			"value": "ㄚ"
+		},
+		{
+			"sound": "a",
+			"value": "ㄚ"
+		},
+		{
+			"sound": "o",
+			"value": "ㄛ"
+		},
+		{
+			"sound": "e",
+			"value": "ㄜ"
+		},
+		{
+			"sound": "ê",
+			"value": "ㄝ"
+		},
+		{
+			"sound": "ai",
+			"value": "ㄞ"
+		},
+		{
+			"sound": "ei",
+			"value": "ㄟ"
+		},
+		{
+			"sound": "ao",
+			"value": "ㄠ"
+		},
+		{
+			"sound": "ou",
+			"value": "ㄡ"
+		},
+		{
+			"sound": "an",
+			"value": "ㄢ"
+		},
+		{
+			"sound": "en",
+			"value": "ㄣ"
+		},
+		{
+			"sound": "ang",
+			"value": "ㄤ"
+		},
+		{
+			"sound": "eng",
+			"value": "ㄥ"
+		},
+		{
+			"sound": "ong",
+			"value": "ㄨㄥ"
+		},
+		{
+			"sound": "yi",
+			"value": "ㄧ"
+		},
+		{
+			"sound": "i",
+			"value": "ㄧ"
+		},
+		{
+			"sound": "ya",
+			"value": "ㄧㄚ"
+		},
+		{
+			"sound": "ia",
+			"value": "ㄧㄚ"
+		},
+		{
+			"sound": "yo",
+			"value": "ㄧㄛ"
+		},
+		{
+			"sound": "ye",
+			"value": "ㄧㄝ"
+		},
+		{
+			"sound": "ie",
+			"value": "ㄧㄝ"
+		},
+		{
+			"sound": "yai",
+			"value": "ㄧㄞ"
+		},
+		{
+			"sound": "yao",
+			"value": "ㄧㄠ"
+		},
+		{
+			"sound": "iao",
+			"value": "ㄧㄠ"
+		},
+		{
+			"sound": "you",
+			"value": "ㄧㄡ"
+		},
+		{
+			"sound": "yan",
+			"value": "ㄧㄢ"
+		},
+		{
+			"sound": "ian",
+			"value": "ㄧㄢ"
+		},
+		{
+			"sound": "yin",
+			"value": "ㄧㄣ"
+		},
+		{
+			"sound": "in",
+			"value": "ㄧㄣ"
+		},
+		{
+			"sound": "yang",
+			"value": "ㄧㄤ"
+		},
+		{
+			"sound": "iang",
+			"value": "ㄧㄤ"
+		},
+		{
+			"sound": "ying",
+			"value": "ㄧㄥ"
+		},
+		{
+			"sound": "ing",
+			"value": "ㄧㄥ"
+		},
+		{
+			"sound": "u",
+			"value": "ㄨ"
+		},
+		{
+			"sound": "wu",
+			"value": "ㄨ"
+		},
+		{
+			"sound": "ua",
+			"value": "ㄨㄚ"
+		},
+		{
+			"sound": "wa",
+			"value": "ㄨㄚ"
+		},
+		{
+			"sound": "uo",
+			"value": "ㄨㄛ"
+		},
+		{
+			"sound": "wo",
+			"value": "ㄨㄛ"
+		},
+		{
+			"sound": "uai",
+			"value": "ㄨㄞ"
+		},
+		{
+			"sound": "wai",
+			"value": "ㄨㄞ"
+		},
+		{
+			"sound": "ui",
+			"value": "ㄨㄟ"
+		},
+		{
+			"sound": "wei",
+			"value": "ㄨㄟ"
+		},
+		{
+			"sound": "uan",
+			"value": "ㄨㄢ"
+		},
+		{
+			"sound": "wan",
+			"value": "ㄨㄢ"
+		},
+		{
+			"sound": "un",
+			"value": "ㄨㄣ"
+		},
+		{
+			"sound": "wen",
+			"value": "ㄨㄣ"
+		},
+		{
+			"sound": "uang",
+			"value": "ㄨㄤ"
+		},
+		{
+			"sound": "wang",
+			"value": "ㄨㄤ"
+		},
+		{
+			"sound": "weng",
+			"value": "ㄨㄥ"
+		},
+		{
+			"sound": "yu",
+			"value": "ㄩ"
+		},
+		{
+			"sound": "ü",
+			"value": "ㄩ"
+		},
+		{
+			"sound": "yüe",
+			"value": "ㄩㄝ"
+		},
+		{
+			"sound": "üe",
+			"value": "ㄩㄝ"
+		},
+		{
+			"sound": "üan",
+			"value": "ㄩㄢ"
+		},
+		{
+			"sound": "yüan",
+			"value": "ㄩㄢ"
+		},
+		{
+			"sound": "ün",
+			"value": "ㄩㄣ"
+		},
+		{
+			"sound": "yün",
+			"value": "ㄩㄣ"
+		},
+		{
+			"sound": "er",
+			"value": "ㄦ"
+		}
+	],
+	"accents": [
+		"0x0301", "0x030c", "0x0300"
+	]
+}

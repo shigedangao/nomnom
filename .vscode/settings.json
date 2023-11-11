@@ -1,0 +1,10 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./dodo/Cargo.toml",
+        "./dodo/Cargo.toml",
+        "./nado/Cargo.toml",
+        "./nado/Cargo.toml",
+        "./nado/Cargo.toml",
+        "./nado/Cargo.toml"
+    ]
+}
