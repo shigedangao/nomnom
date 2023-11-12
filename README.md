@@ -1,4 +1,4 @@
-# Nomnom 🥘
+# Nomnom 🥘 (WIP)
 
 <p align="center">
   <img src="./nomnom.gif" />
@@ -18,11 +18,11 @@ Clone this project and run one of the cargo command below. If needed I could pro
 ### Json
 
 ```sh
-cargo run -- generate --cedict-path ./cedict_ts.u8 --zh-hsk-path ./hsk.csv -o ./cedict.json -f json
+cargo run -- generate -e ../cedict_ts.u8 -o ../cedict.json -f json
 ```
 
 ### Csv
 
 ```sh
-cargo run -- generate --cedict-path ./cedict_ts.u8 --zh-hsk-path ./hsk.csv -o ./cedict.csv -f csv
+cargo run -- generate -e ../cedict_ts.u8 -o ../cedict.csv -f csv
 ```
