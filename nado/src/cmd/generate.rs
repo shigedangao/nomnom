@@ -6,6 +6,18 @@ use async_trait::async_trait;
 use dodo::cedict::{Item, KeyVariant};
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
+use crate::progress::ProgressBuilder;
+
+const CSV_HEADERS: [&str; 8] = [
+    "traditional_character",
+    "simplified_character",
+    "pinyin_tone_number",
+    "translations",
+    "pinyin_tone_mark",
+    "zhuyins",
+    "wade_giles",
+    "hsk_level"
+];
 
 #[derive(Debug)]
 pub struct Gen;
@@ -25,15 +37,15 @@ impl CommandRunner for Gen {
     async fn run(args: &CliArgs) -> Result<()> {
         let path = PathBuf::from(&args.file_path);
 
-        // @TODO uses a logger or something to display...
-        println!("Load cedict dictionary");
+        println!("📖 - Loading cedict dictionary");
         // Load the Cedict dictionary
         let mut cedict = dodo::load_cedict_dictionary(path, KeyVariant::Traditional)?;
 
-        // @TODO uses a logger or something to display...
-        println!("Load HSK Level");
         // Load the HSK level per character
         let hsks = hsk::load_hsk_levels().await?;
+
+        println!("⚙️ - Processing cedict items...");
+        let mut pb = ProgressBuilder::new(cedict.items.len() as u64);
 
         let items = cedict
             .items
@@ -48,13 +60,19 @@ impl CommandRunner for Gen {
                 .generate_wade_giles_from_pinyin()
                 .fill_hsk_field(&hsks);
 
+                pb.inc(1);
+
                 citem
             })
             .collect::<Vec<_>>();
 
+        pb.clear();
+
+        println!("🖊️ - Generating target file with the path {}", args.output_path);
+
         let output = match args.output_format {
             OutputFormat::Json => serde_json::to_string(&items)?,
-            OutputFormat::Csv => util::into_csv_string(&items)?,
+            OutputFormat::Csv => util::into_csv_string(&items, Some(CSV_HEADERS.to_vec()))?,
         };
 
         std::fs::write(&args.output_path, output)?;
@@ -130,5 +148,25 @@ impl CedictItem {
         }
 
         self.clone()
+    }
+}
+
+impl util::IntoRecord for CedictItem {
+    fn into_record(&self) -> Vec<String> {
+        let hsk_str = self.hsk_level
+            .clone()
+            .and_then(|h| Some(h.to_string()))
+            .unwrap_or_default();
+
+        vec![
+            self.cedict_item.traditional_character.to_owned(),
+            self.cedict_item.simplified_character.to_owned(),
+            self.cedict_item.pinyin_tone_number.join(","),
+            self.cedict_item.translations.join(","),
+            self.pinyin_tone_marker.join(","),
+            self.zhuyins.join(","),
+            self.wades.join(","),
+            hsk_str
+        ]
     }
 }

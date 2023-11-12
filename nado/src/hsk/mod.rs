@@ -34,6 +34,20 @@ impl From<usize> for HSKLevel {
     }
 }
 
+impl ToString for HSKLevel {
+    fn to_string(&self) -> String {
+        match self {
+            Self::HSK1 => "hsk1".to_owned(),
+            Self::HSK2 => "hsk2".to_owned(),
+            Self::HSK3 => "hsk3".to_owned(),
+            Self::HSK4 => "hsk4".to_owned(),
+            Self::HSK5 => "hsk5".to_owned(),
+            Self::HSK6 => "hsk6".to_owned(),
+            Self::HSK7 => "hsk7".to_owned()
+        }
+    }
+}
+
 #[async_trait]
 pub trait Source {
     /// Download the contents asynchronously based on the given list of URL endpoints
@@ -52,6 +66,7 @@ pub trait Source {
         for url in endpoints.into_iter() {
             let url = url.as_ref().to_owned();
             let task: JoinHandle<Result<String>> = tokio::spawn(async move {
+                println!("🈷️ - Downloading HSK data from: {url}");
                 let res = reqwest::get(url).await?.text().await?;
 
                 Ok(res)
