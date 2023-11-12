@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use dodo::cedict::{Item, KeyVariant};
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
+use crate::progress::ProgressBuilder;
 
 const CSV_HEADERS: [&str; 8] = [
     "traditional_character",
@@ -36,15 +37,15 @@ impl CommandRunner for Gen {
     async fn run(args: &CliArgs) -> Result<()> {
         let path = PathBuf::from(&args.file_path);
 
-        // @TODO uses a logger or something to display...
-        println!("Load cedict dictionary");
+        println!("📖 - Loading cedict dictionary");
         // Load the Cedict dictionary
         let mut cedict = dodo::load_cedict_dictionary(path, KeyVariant::Traditional)?;
 
-        // @TODO uses a logger or something to display...
-        println!("Load HSK Level");
         // Load the HSK level per character
         let hsks = hsk::load_hsk_levels().await?;
+
+        println!("⚙️ - Processing cedict items...");
+        let mut pb = ProgressBuilder::new(cedict.items.len() as u64);
 
         let items = cedict
             .items
@@ -59,9 +60,15 @@ impl CommandRunner for Gen {
                 .generate_wade_giles_from_pinyin()
                 .fill_hsk_field(&hsks);
 
+                pb.inc(1);
+
                 citem
             })
             .collect::<Vec<_>>();
+
+        pb.clear();
+
+        println!("🖊️ - Generating target file with the path {}", args.output_path);
 
         let output = match args.output_format {
             OutputFormat::Json => serde_json::to_string(&items)?,

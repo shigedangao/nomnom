@@ -66,6 +66,7 @@ pub trait Source {
         for url in endpoints.into_iter() {
             let url = url.as_ref().to_owned();
             let task: JoinHandle<Result<String>> = tokio::spawn(async move {
+                println!("🈷️ - Downloading HSK data from: {url}");
                 let res = reqwest::get(url).await?.text().await?;
 
                 Ok(res)

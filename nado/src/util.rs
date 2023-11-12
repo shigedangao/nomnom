@@ -3,6 +3,12 @@ use csv::WriterBuilder;
 use serde::Serialize;
 
 pub trait IntoRecord {
+    /// Transform the item into a record of CSV. This is used
+    /// when the csv item could not be serialized by the CSV library when using Serde
+    ///
+    /// # Arguments
+    ///
+    /// * `self` - Self
     fn into_record(&self) -> Vec<String> { vec![] }
 }
 
