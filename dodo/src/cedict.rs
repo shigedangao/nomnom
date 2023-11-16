@@ -76,7 +76,7 @@ impl TryFrom<&str> for Item {
         let translations = translations_split_parts
             .get(1..)
             .ok_or_else(|| Error::Parse("Unable to found the translations".to_string()))?
-            .into_iter()
+            .iter()
             .filter_map(filter_empty_check)
             .collect::<Vec<_>>();
 

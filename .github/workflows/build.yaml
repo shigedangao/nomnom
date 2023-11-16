@@ -1,0 +1,38 @@
+on:
+  push:
+    tags: ["*"]
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build release
+      run: cargo build --release
+      working-directory: nado
+    - name: zip release
+      run: zip -j nado-linux.zip ./nado/target/release/nado
+    - uses: actions/upload-artifact@v3
+      with:
+        name: nado-linux.zip
+        path: nado-linux.zip
+  
+  macos:
+    runs-on: macos-12
+    needs: linux
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release
+        run: cargo build --release
+        working-directory: nado
+      - name: zip release
+        run: zip -j nado-osx.zip ./nado/target/release/nado
+      - uses: actions/download-artifact@v3
+        with:
+          name: nado-linux.zip
+      - uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            nado-linux.zip
+            nado-osx.zip

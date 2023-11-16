@@ -11,8 +11,8 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Json(msg) => write!(f, "Unable to parse json file: {msg}"),
-            Self::Io(msg) => write!(f, "Unable to {msg}"),
-            Self::Parse(msg) => write!(f, "Unable to parse the cedict file {msg}"),
+            Self::Io(msg) => write!(f, "Unable to process cedict: {msg}"),
+            Self::Parse(msg) => write!(f, "Unable to parse cedict file {msg}"),
         }
     }
 }
