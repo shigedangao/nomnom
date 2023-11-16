@@ -43,7 +43,7 @@ impl ToString for HSKLevel {
             Self::HSK4 => "hsk4".to_owned(),
             Self::HSK5 => "hsk5".to_owned(),
             Self::HSK6 => "hsk6".to_owned(),
-            Self::HSK7 => "hsk7".to_owned()
+            Self::HSK7 => "hsk7".to_owned(),
         }
     }
 }

@@ -1,12 +1,12 @@
 use super::{CliArgs, CommandRunner, OutputFormat};
 use crate::hsk;
+use crate::progress::ProgressBuilder;
 use crate::{hsk::HSKLevel, util};
 use anyhow::Result;
 use async_trait::async_trait;
 use dodo::cedict::{Item, KeyVariant};
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
-use crate::progress::ProgressBuilder;
 
 const CSV_HEADERS: [&str; 8] = [
     "traditional_character",
@@ -16,7 +16,7 @@ const CSV_HEADERS: [&str; 8] = [
     "pinyin_tone_mark",
     "zhuyins",
     "wade_giles",
-    "hsk_level"
+    "hsk_level",
 ];
 
 #[derive(Debug)]
@@ -42,7 +42,14 @@ impl CommandRunner for Gen {
         let mut cedict = dodo::load_cedict_dictionary(path, KeyVariant::Traditional)?;
 
         // Load the HSK level per character
-        let hsks = hsk::load_hsk_levels().await?;
+        let hsks = hsk::load_hsk_levels().await.map_or_else(
+            |_| {
+                println!("⚠️ Unable to download HSK data");
+
+                HashMap::new()
+            },
+            |v| v,
+        );
 
         println!("⚙️ - Processing cedict items...");
         let mut pb = ProgressBuilder::new(cedict.items.len() as u64);
@@ -68,11 +75,14 @@ impl CommandRunner for Gen {
 
         pb.clear();
 
-        println!("🖊️ - Generating target file with the path {}", args.output_path);
+        println!(
+            "🖊️ - Generating target file with the path {}",
+            args.output_path
+        );
 
         let output = match args.output_format {
             OutputFormat::Json => serde_json::to_string(&items)?,
-            OutputFormat::Csv => util::into_csv_string(&items, Some(CSV_HEADERS.to_vec()))?,
+            OutputFormat::Csv => util::as_csv_string(&items, Some(CSV_HEADERS.to_vec()))?,
         };
 
         std::fs::write(&args.output_path, output)?;
@@ -151,11 +161,12 @@ impl CedictItem {
     }
 }
 
-impl util::IntoRecord for CedictItem {
-    fn into_record(&self) -> Vec<String> {
-        let hsk_str = self.hsk_level
-            .clone()
-            .and_then(|h| Some(h.to_string()))
+impl util::AsRecord for CedictItem {
+    fn as_record(&self) -> Vec<String> {
+        let hsk_str = self
+            .hsk_level
+            .as_ref()
+            .map(|h| h.to_string())
             .unwrap_or_default();
 
         vec![
@@ -166,7 +177,7 @@ impl util::IntoRecord for CedictItem {
             self.pinyin_tone_marker.join(","),
             self.zhuyins.join(","),
             self.wades.join(","),
-            hsk_str
+            hsk_str,
         ]
     }
 }

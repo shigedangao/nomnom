@@ -1,13 +1,17 @@
 use anyhow::Result;
+use std::process;
 
 mod cmd;
 mod hsk;
-mod util;
 mod progress;
+mod util;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    cmd::run().await?;
+    if let Err(err) = cmd::run().await {
+        eprintln!("{}", err);
+        process::exit(2)
+    };
 
     Ok(())
 }

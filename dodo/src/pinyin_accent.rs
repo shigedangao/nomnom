@@ -52,7 +52,7 @@ impl PinyinAccent {
                     match c {
                         'u' => {
                             if let Some(t_u) = TONES_U.get(tone_index) {
-                                return format!("{t_u}");
+                                return t_u.to_string();
                             }
                         }
                         _ => return format!("{c}{tone_mark}"),
@@ -73,15 +73,15 @@ impl PinyinAccent {
     /// * `self` - Self
     /// * `chars` - &[char]
     fn get_vowel_position(&self, chars: &[char]) -> Option<usize> {
-        let mut iterator = chars.into_iter().enumerate();
+        let mut iterator = chars.iter().enumerate();
 
         while let Some((idx, c)) = iterator.next() {
             // cases where there are more than 1 vowel
             // If the first vowel is a MEDIAL Vowel, then the next vowel which is the next letter
             // is the one who has the marker tone
-            if MEDIAL_VOWEL.contains(&c) {
+            if MEDIAL_VOWEL.contains(c) {
                 if let Some((n_idx, next)) = iterator.next() {
-                    if VOWEL.contains(&next) {
+                    if VOWEL.contains(next) {
                         return Some(n_idx);
                     }
                 }
@@ -89,7 +89,7 @@ impl PinyinAccent {
                 // Otherwise this mean that we're at the end word meaning that the
                 // tone accent is at the last character
                 return Some(idx);
-            } else if VOWEL.contains(&c) {
+            } else if VOWEL.contains(c) {
                 // otherwise it's the first vowel that we need to take into account
                 // only the first vowel
                 return Some(idx);
