@@ -34,12 +34,12 @@ cargo run -- generate -e ../cedict_ts.u8 -o ../cedict.csv -f csv
 A small crates is available which provided a list of utility method to interact with the cedict and doing some pinyin conversion. Below is how you can use the crate to load the cedict
 
 ```rust
-use dodo;
-use dodo::KeyVariant;
+use dodo_zh;
+use dodo_zh::KeyVariant;
 
 fn main() {
     // The KeyVariant can either be Traditional or Simplified chinese
-    let cedict = dodo::load_cedict_dictionary(path, KeyVariant::Traditional).unwrap();
+    let cedict = dodo_zh::load_cedict_dictionary(path, KeyVariant::Traditional).unwrap();
     let wo = cedict.items.get("我").unwrap();
 
     // will return an Item struct
