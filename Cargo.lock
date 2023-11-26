@@ -298,7 +298,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dodo"
+name = "dodo-zh"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -751,7 +751,7 @@ dependencies = [
  "async-trait",
  "clap",
  "csv",
- "dodo",
+ "dodo-zh",
  "indicatif",
  "reqwest",
  "scraper",

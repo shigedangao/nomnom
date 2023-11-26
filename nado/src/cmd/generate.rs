@@ -4,7 +4,7 @@ use crate::progress::ProgressBuilder;
 use crate::{hsk::HSKLevel, util};
 use anyhow::Result;
 use async_trait::async_trait;
-use dodo::cedict::{Item, KeyVariant};
+use dodo_zh::cedict::{Item, KeyVariant};
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
 
@@ -39,7 +39,7 @@ impl CommandRunner for Gen {
 
         println!("📖 - Loading cedict dictionary");
         // Load the Cedict dictionary
-        let mut cedict = dodo::load_cedict_dictionary(path, KeyVariant::Traditional)?;
+        let mut cedict = dodo_zh::load_cedict_dictionary(path, KeyVariant::Traditional)?;
 
         // Load the HSK level per character
         let hsks = hsk::load_hsk_levels().await.map_or_else(
@@ -102,7 +102,7 @@ impl CedictItem {
             .cedict_item
             .pinyin_tone_number
             .iter()
-            .filter_map(|p| dodo::convert_pinyin_tone_number_to_tone_mark(p).ok())
+            .filter_map(|p| dodo_zh::convert_pinyin_tone_number_to_tone_mark(p).ok())
             .collect::<Vec<String>>();
 
         self.pinyin_tone_marker = pinyins;
@@ -120,7 +120,7 @@ impl CedictItem {
             .cedict_item
             .pinyin_tone_number
             .iter()
-            .filter_map(|p| dodo::convert_pinyin_to_zhuyin(p).ok())
+            .filter_map(|p| dodo_zh::convert_pinyin_to_zhuyin(p).ok())
             .collect::<Vec<String>>();
 
         self.zhuyins = zhuyins;
@@ -138,7 +138,7 @@ impl CedictItem {
             .cedict_item
             .pinyin_tone_number
             .iter()
-            .filter_map(|p| dodo::convert_pinyin_to_wade_giles(p).ok())
+            .filter_map(|p| dodo_zh::convert_pinyin_to_wade_giles(p).ok())
             .collect::<Vec<String>>();
 
         self.wades = wades;

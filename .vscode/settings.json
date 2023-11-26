@@ -1,7 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./dodo/Cargo.toml",
-        "./dodo/Cargo.toml",
+        "./dodo-zh/Cargo.toml",
+        "./dodo-zh/Cargo.toml",
         "./nado/Cargo.toml",
         "./nado/Cargo.toml",
         "./nado/Cargo.toml",
