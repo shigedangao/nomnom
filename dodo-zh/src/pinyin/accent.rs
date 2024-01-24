@@ -2,7 +2,7 @@
 const MEDIAL_VOWEL: [char; 2] = ['i', 'u'];
 const VOWEL: [char; 5] = ['a', 'e', 'i', 'o', 'u'];
 const TONES: [&str; 4] = ["\u{0304}", "\u{0301}", "\u{030c}", "\u{0300}"];
-const TONES_U: [&str; 4] = ["ǖ", "ǘ", "ǚ", "ǜ"];
+const TONES_U: [&str; 4] = ["ū", "ú", "ǔ", "ù"];
 
 /// Create & manipulate a pinyin to convert into an accent one.
 pub struct PinyinAccent(pub String);
@@ -123,7 +123,7 @@ mod tests {
         let word: Option<String> =
             PinyinAccent("nu:3".to_string()).replace_tone_numbers_with_tone_marks();
 
-        assert_eq!(word.unwrap(), "nǚ");
+        assert_eq!(word.unwrap(), "nǔ");
     }
 
     #[test]
