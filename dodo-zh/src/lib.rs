@@ -1,13 +1,14 @@
 use crate::error::Error;
 use cedict::{Dictionary, KeyVariant};
-use pinyin_accent::PinyinAccent;
+use pinyin::accent::PinyinAccent;
+use pinyin::numbers::PinyinNumber;
 use std::path::PathBuf;
 use wade_giles::WadeGiles;
 use zhuyin::Zhuyin;
 
 pub mod cedict;
 pub(crate) mod error;
-pub(crate) mod pinyin_accent;
+pub(crate) mod pinyin;
 pub(crate) mod wade_giles;
 pub(crate) mod zhuyin;
 
@@ -69,6 +70,26 @@ where
         .filter_map(|content| {
             PinyinAccent(content.to_string()).replace_tone_numbers_with_tone_marks()
         })
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    Ok(res)
+}
+
+/// Convert a pinyin word or sentence with accent into a pinyin with number
+///
+/// # Arguments
+///
+/// * `text` - S
+pub fn convert_pinyin_accent_to_pinyin_number<S>(text: S) -> Result<String, Error>
+where
+    S: AsRef<str>,
+{
+    let splitted_text = text.as_ref().split_whitespace().collect::<Vec<_>>();
+
+    let res = splitted_text
+        .into_iter()
+        .map(|content| PinyinNumber(content.to_string()).into_number())
         .collect::<Vec<_>>()
         .join(" ");
 
