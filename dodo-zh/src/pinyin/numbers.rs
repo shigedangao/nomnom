@@ -7,8 +7,23 @@ impl PinyinNumber {
     /// Into Number convert the accent to numberss
     pub fn into_number(self) -> String {
         let chars: Vec<char> = self.0.nfd().collect();
+        let mut accent = char::default();
 
-        let pinyin: Vec<char> = chars.into_iter().map(get_char).collect();
+        let mut pinyin: Vec<char> = chars
+            .into_iter()
+            .filter_map(|item| {
+                if let Some(acc) = get_char(item) {
+                    accent = acc;
+
+                    return None
+                }
+
+                Some(item)
+            })
+            .collect();
+
+        // Pinyin accent number is usually put at the end.
+        pinyin.push(accent);
 
         pinyin.iter().collect()
     }
@@ -19,13 +34,13 @@ impl PinyinNumber {
 /// # Arguments
 ///
 /// * `ch` - char
-fn get_char(ch: char) -> char {
+fn get_char(ch: char) -> Option<char> {
     match ch {
-        '\u{0304}' => '1',
-        '\u{0301}' => '2',
-        '\u{030c}' => '3',
-        '\u{0300}' => '4',
-        _ => ch,
+        '\u{0304}' => Some('1'),
+        '\u{0301}' => Some('2'),
+        '\u{030c}' => Some('3'),
+        '\u{0300}' => Some('4'),
+        _ => None,
     }
 }
 
@@ -38,5 +53,12 @@ mod tests {
         let p = PinyinNumber("wǒ".into()).into_number();
 
         assert_eq!(p, "wo3");
+    }
+
+    #[test]
+    fn expect_to_generate_pinyin_number_from_accent_middle() {
+        let p = PinyinNumber("huān".into()).into_number();
+
+        assert_eq!(p, "huan1");
     }
 }
