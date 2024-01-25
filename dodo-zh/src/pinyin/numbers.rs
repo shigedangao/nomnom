@@ -11,14 +11,14 @@ impl PinyinNumber {
 
         let mut pinyin: Vec<char> = chars
             .into_iter()
-            .filter_map(|item| {
-                if let Some(acc) = get_char(item) {
+            .filter(|item| {
+                if let Some(acc) = get_char(*item) {
                     accent = acc;
 
-                    return None
+                    return false;
                 }
 
-                Some(item)
+                true
             })
             .collect();
 
