@@ -3,7 +3,6 @@ use crate::hsk;
 use crate::progress::ProgressBuilder;
 use crate::{hsk::HSKLevel, util};
 use anyhow::Result;
-use async_trait::async_trait;
 use dodo_zh::cedict::{Item, KeyVariant};
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
@@ -32,7 +31,6 @@ pub struct CedictItem {
     pub hsk_level: Option<HSKLevel>,
 }
 
-#[async_trait]
 impl CommandRunner for Gen {
     async fn run(args: &CliArgs) -> Result<()> {
         let path = PathBuf::from(&args.file_path);
