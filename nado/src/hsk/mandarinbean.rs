@@ -1,6 +1,5 @@
 use super::{HSKLevel, Source};
 use anyhow::{anyhow, Result};
-use async_trait::async_trait;
 use scraper::html::Html;
 use scraper::selector::Selector;
 use std::collections::HashMap;
@@ -21,7 +20,6 @@ pub struct Mandarinbean {
     contents: Vec<String>,
 }
 
-#[async_trait]
 impl Source for Mandarinbean {
     async fn get_contents(self) -> Result<HashMap<String, HSKLevel>> {
         let mut tasks = Vec::new();

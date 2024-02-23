@@ -6,6 +6,7 @@
         "./nado/Cargo.toml",
         "./nado/Cargo.toml",
         "./nado/Cargo.toml",
-        "./nado/Cargo.toml"
+        "./nado/Cargo.toml",
+        "./dodo-zh/Cargo.toml"
     ]
 }

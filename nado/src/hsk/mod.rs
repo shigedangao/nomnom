@@ -1,5 +1,4 @@
 use anyhow::Result;
-use async_trait::async_trait;
 use mandarinbean::{Mandarinbean, URLS};
 use serde::Serialize;
 use std::collections::HashMap;
@@ -48,7 +47,6 @@ impl ToString for HSKLevel {
     }
 }
 
-#[async_trait]
 pub trait Source {
     /// Download the contents asynchronously based on the given list of URL endpoints
     ///

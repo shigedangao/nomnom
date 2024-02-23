@@ -1,10 +1,8 @@
 use anyhow::Result;
-use async_trait::async_trait;
 use clap::{Parser, ValueEnum};
 
 mod generate;
 
-#[async_trait]
 trait CommandRunner {
     async fn run(args: &CliArgs) -> Result<()>;
 }
