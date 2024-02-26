@@ -54,7 +54,7 @@ impl Source for Wohok {
 
         match Arc::try_unwrap(hsk_items) {
             Ok(mutex) => Ok(mutex.into_inner()?),
-            Err(_) => return Err(anyhow!("Unable to consume the inner wrapper")),
+            Err(_) => Err(anyhow!("Unable to consume the inner wrapper")),
         }
     }
 

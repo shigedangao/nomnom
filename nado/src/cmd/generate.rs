@@ -1,4 +1,4 @@
-use super::{CliArgs, CommandRunner, OutputFormat};
+use super::{CommandRunner, GenerateArgs, OutputFormat};
 use crate::hsk;
 use crate::progress::ProgressBuilder;
 use crate::{hsk::HSKLevel, util};
@@ -19,7 +19,9 @@ const CSV_HEADERS: [&str; 8] = [
 ];
 
 #[derive(Debug)]
-pub struct Gen;
+pub struct Gen {
+    args: GenerateArgs,
+}
 
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct CedictItem {
@@ -31,9 +33,15 @@ pub struct CedictItem {
     pub hsk_level: Option<HSKLevel>,
 }
 
+impl Gen {
+    pub fn new(args: GenerateArgs) -> Self {
+        Self { args }
+    }
+}
+
 impl CommandRunner for Gen {
-    async fn run(args: &CliArgs) -> Result<()> {
-        let path = PathBuf::from(&args.file_path);
+    async fn run(&self) -> Result<()> {
+        let path = PathBuf::from(&self.args.file_path);
 
         println!("📖 - Loading cedict dictionary");
         // Load the Cedict dictionary
@@ -75,15 +83,15 @@ impl CommandRunner for Gen {
 
         println!(
             "🖊️ - Generating target file with the path {}",
-            args.output_path
+            self.args.output_path
         );
 
-        let output = match args.output_format {
+        let output = match self.args.output_format {
             OutputFormat::Json => serde_json::to_string(&items)?,
             OutputFormat::Csv => util::as_csv_string(&items, Some(CSV_HEADERS.to_vec()))?,
         };
 
-        std::fs::write(&args.output_path, output)?;
+        std::fs::write(&self.args.output_path, output)?;
 
         Ok(())
     }
