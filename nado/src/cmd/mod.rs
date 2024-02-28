@@ -39,6 +39,8 @@ struct GenerateArgs {
 struct DownloadArgs {
     #[clap(long, value_parser)]
     output_path: String,
+    #[clap(long, value_parser)]
+    download_link: Option<String>,
 }
 
 #[derive(Parser)]

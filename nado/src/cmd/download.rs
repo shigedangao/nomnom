@@ -1,8 +1,7 @@
 use super::{CommandRunner, DownloadArgs};
 use anyhow::{anyhow, Result};
 use std::fs::{self, File};
-use std::io::ErrorKind;
-use std::io::{copy, Cursor};
+use std::io::{copy, Cursor, ErrorKind};
 use std::process::Command;
 use tempfile::Builder;
 
@@ -23,7 +22,13 @@ impl Downloader {
 impl CommandRunner for Downloader {
     async fn run(&self) -> Result<()> {
         let tmp_dir = Builder::new().prefix(CEDICT).tempdir()?;
-        let bytes = reqwest::get(URL).await?.bytes().await?;
+        let url = match &self.args.download_link {
+            Some(url) => url.clone(),
+            None => URL.to_owned(),
+        };
+
+        println!("⚙️ - Downloading cedict.zip ...");
+        let bytes = reqwest::get(url).await?.bytes().await?;
         let mut content = Cursor::new(bytes);
 
         let fname = tmp_dir.path().join("cedict.zip");
@@ -51,7 +56,10 @@ impl CommandRunner for Downloader {
             .output()
             .map_err(|err| anyhow!("Expect to unzip the targeted cedict file {err}"))?;
 
-        dbg!(output);
+        match output.status.success() {
+            true => println!("📚 - Dictionary has been downloaded"),
+            false => println!("📚❌ - Dictionary could not be download"),
+        }
 
         Ok(())
     }
