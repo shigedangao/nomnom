@@ -1,4 +1,8 @@
-use indicatif::ProgressBar;
+use indicatif::{ProgressBar, ProgressStyle};
+
+// Constant
+const PB_STYLE: &str =
+    "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
 
 /// Wrapper over the ProgressBar
 #[derive(Debug)]
@@ -13,9 +17,12 @@ impl ProgressBuilder {
     ///
     /// * `size` - u64
     pub fn new(size: u64) -> Self {
-        Self {
-            pb: ProgressBar::new(size),
+        let pb = ProgressBar::new(size);
+        if let Ok(style) = ProgressStyle::with_template(PB_STYLE) {
+            pb.set_style(style);
         }
+
+        Self { pb }
     }
 
     /// Increase the value of the progress bar
