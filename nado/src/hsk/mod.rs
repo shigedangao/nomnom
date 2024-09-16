@@ -1,7 +1,7 @@
 use anyhow::Result;
 use mandarinbean::{Mandarinbean, URLS};
 use serde::Serialize;
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 use tokio::task::JoinHandle;
 use wohok::{Wohok, URLS as WohokURLS};
 
@@ -33,16 +33,16 @@ impl From<usize> for HSKLevel {
     }
 }
 
-impl ToString for HSKLevel {
-    fn to_string(&self) -> String {
+impl Display for HSKLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::HSK1 => "hsk1".to_owned(),
-            Self::HSK2 => "hsk2".to_owned(),
-            Self::HSK3 => "hsk3".to_owned(),
-            Self::HSK4 => "hsk4".to_owned(),
-            Self::HSK5 => "hsk5".to_owned(),
-            Self::HSK6 => "hsk6".to_owned(),
-            Self::HSK7 => "hsk7".to_owned(),
+            Self::HSK1 => write!(f, "hsk1"),
+            Self::HSK2 => write!(f, "hsk2"),
+            Self::HSK3 => write!(f, "hsk3"),
+            Self::HSK4 => write!(f, "hsk4"),
+            Self::HSK5 => write!(f, "hsk5"),
+            Self::HSK6 => write!(f, "hsk6"),
+            Self::HSK7 => write!(f, "hsk7"),
         }
     }
 }

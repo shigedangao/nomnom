@@ -1,12 +1,17 @@
 use unicode_normalization::UnicodeNormalization;
 
 /// PinyinNumber is handler which allows to convert a pinyin with accent to a pinyin with a number
-pub struct PinyinNumber(pub String);
+pub struct PinyinNumber<S>(pub S)
+where
+    S: AsRef<str> + Clone;
 
-impl PinyinNumber {
+impl<S> PinyinNumber<S>
+where
+    S: AsRef<str> + Clone,
+{
     /// Into Number convert the accent to numberss
     pub fn into_number(self) -> String {
-        let chars: Vec<char> = self.0.nfd().collect();
+        let chars: Vec<char> = self.0.as_ref().nfd().collect();
         let mut accent = char::default();
 
         let mut pinyin: Vec<char> = chars
@@ -50,14 +55,14 @@ mod tests {
 
     #[test]
     fn expect_to_generate_pinyin_number_from_pinyin_accent() {
-        let p = PinyinNumber("wǒ".into()).into_number();
+        let p = PinyinNumber("wǒ").into_number();
 
         assert_eq!(p, "wo3");
     }
 
     #[test]
     fn expect_to_generate_pinyin_number_from_accent_middle() {
-        let p = PinyinNumber("huān".into()).into_number();
+        let p = PinyinNumber("huān").into_number();
 
         assert_eq!(p, "huan1");
     }

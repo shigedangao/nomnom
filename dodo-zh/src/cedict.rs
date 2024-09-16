@@ -52,7 +52,7 @@ impl Dictionary {
 
             // A cedict line is composed using the format below
             // <traditional_chinese> <simplified_chinese> <pinyin> <translations>
-            let item = Item::try_from(line.as_str())?;
+            let item = Item::try_from(line)?;
             match key_variant {
                 KeyVariant::Simplified => items.insert(item.simplified_character.clone(), item),
                 KeyVariant::Traditional => items.insert(item.traditional_character.clone(), item),
@@ -63,10 +63,10 @@ impl Dictionary {
     }
 }
 
-impl TryFrom<&str> for Item {
+impl TryFrom<String> for Item {
     type Error = Error;
 
-    fn try_from(line: &str) -> Result<Self, Self::Error> {
+    fn try_from(line: String) -> Result<Self, Self::Error> {
         let translations_split_parts = line.split(CEDICT_SLASH).collect::<Vec<&str>>();
 
         let rest = translations_split_parts
@@ -138,7 +138,7 @@ mod tests {
     #[test]
     fn expect_to_parse_line_item() {
         let line = r"一動不動 一动不动 [yi1 dong4 bu4 dong4] /motionless/";
-        let item = Item::try_from(line);
+        let item = Item::try_from(line.to_string());
 
         assert!(item.is_ok());
 

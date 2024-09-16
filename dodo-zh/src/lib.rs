@@ -19,7 +19,7 @@ pub(crate) mod zhuyin;
 /// * `text` - S
 pub fn convert_pinyin_to_zhuyin<S>(text: S) -> Result<String, Error>
 where
-    S: AsRef<str>,
+    S: AsRef<str> + Clone,
 {
     let splitted_text = text.as_ref().split_whitespace().collect::<Vec<_>>();
 
@@ -41,7 +41,7 @@ where
 /// * `text` - S
 pub fn convert_pinyin_to_wade_giles<S>(text: S) -> Result<String, Error>
 where
-    S: AsRef<str>,
+    S: AsRef<str> + Clone,
 {
     let splitted_text = text.as_ref().split_whitespace().collect::<Vec<_>>();
 
@@ -61,7 +61,7 @@ where
 /// * `text` - S
 pub fn convert_pinyin_tone_number_to_tone_mark<S>(text: S) -> Result<String, Error>
 where
-    S: AsRef<str>,
+    S: AsRef<str> + Clone,
 {
     let splitted_text = text.as_ref().split_whitespace().collect::<Vec<_>>();
 
@@ -83,7 +83,7 @@ where
 /// * `text` - S
 pub fn convert_pinyin_accent_to_pinyin_number<S>(text: S) -> Result<String, Error>
 where
-    S: AsRef<str>,
+    S: AsRef<str> + Clone,
 {
     let splitted_text = text.as_ref().split_whitespace().collect::<Vec<_>>();
 

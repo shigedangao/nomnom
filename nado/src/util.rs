@@ -9,9 +9,7 @@ pub trait AsRecord {
     /// # Arguments
     ///
     /// * `self` - Self
-    fn as_record(&self) -> Vec<String> {
-        vec![]
-    }
+    fn as_record(&self) -> Vec<String>;
 }
 
 /// Convert a slice of type T that can be serialize into a csv representation
