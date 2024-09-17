@@ -5,9 +5,14 @@ const TONES: [&str; 4] = ["\u{0304}", "\u{0301}", "\u{030c}", "\u{0300}"];
 const TONES_U: [&str; 4] = ["ū", "ú", "ǔ", "ù"];
 
 /// Create & manipulate a pinyin to convert into an accent one.
-pub struct PinyinAccent(pub String);
+pub struct PinyinAccent<S>(pub S)
+where
+    S: AsRef<str> + Clone;
 
-impl PinyinAccent {
+impl<S> PinyinAccent<S>
+where
+    S: AsRef<str> + Clone,
+{
     /// Replace the tone numberes i.e: xi1 with the tone marks
     /// - Tones are only placed in a vowel
     ///     - There are some rules. Please refer to readme for the link of the rules but in short:
@@ -24,6 +29,7 @@ impl PinyinAccent {
         // Get a vector of char and filter out the ':' used to define the tone for word that has the u like nu:3
         let mut chars = self
             .0
+            .as_ref()
             .chars()
             .filter(|c| !c.eq(&':'))
             .collect::<Vec<char>>();
@@ -35,12 +41,12 @@ impl PinyinAccent {
                 let index = t.to_digit(10).unwrap_or_default().overflowing_sub(1).0 as usize;
                 (index, TONES.get(index).unwrap_or(&""))
             }
-            None => return Some(self.0.clone()),
+            None => return Some(self.0.as_ref().to_string()),
         };
 
         let vowel_position = self.get_vowel_position(&chars);
         if vowel_position.is_none() {
-            return Some(self.0.clone());
+            return Some(self.0.as_ref().to_string());
         }
 
         let vowel_position = vowel_position.unwrap();

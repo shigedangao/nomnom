@@ -1,6 +1,13 @@
-pub struct WadeGiles(pub String);
+use core::fmt;
 
-impl WadeGiles {
+pub struct WadeGiles<S>(pub S)
+where
+    S: AsRef<str> + Clone;
+
+impl<S> WadeGiles<S>
+where
+    S: AsRef<str> + Clone + fmt::Display,
+{
     /// Convert a single pinyin to a wade giles value
     ///     1. The first rules will be based at matching the prefix
     ///     2. Change the suffix
@@ -9,32 +16,42 @@ impl WadeGiles {
     ///
     /// * `pinyin` - S
     pub fn convert_pinyin_to_wade_giles(&mut self) -> String {
-        let last_char_numeric_check = self.0.chars().last().filter(|v| v.is_numeric());
+        let last_char_numeric_check = self.0.as_ref().chars().last().filter(|v| v.is_numeric());
 
         let (working_str, last_char) = match last_char_numeric_check {
             Some(v) => (
-                self.0.trim_end_matches(char::is_numeric).to_string(),
+                self.0
+                    .as_ref()
+                    .trim_end_matches(char::is_numeric)
+                    .to_string(),
                 v.to_string(),
             ),
-            None => (self.0.clone(), String::default()),
+            None => (self.0.as_ref().to_owned(), String::default()),
         };
 
-        let res = self
-            .process_first_character_set(&working_str)
+        let mut handler = WadeGilesWorker(working_str);
+        let res = handler
+            .process_first_character_set()
             .process_end_characters(2)
             .process_end_characters(3);
 
         format!("{}{}", res.0, last_char)
     }
+}
 
+/// WadeGilesWorker implement the logic to convert a pinyin to a wade giles.
+pub struct WadeGilesWorker(pub String);
+
+impl WadeGilesWorker {
     /// Process the first character of the pinyin and some special cases related to this first character
     ///
     /// # Arguments
     ///
     /// * `&mut Self` - Self
     /// * `input` - &str
-    fn process_first_character_set(&mut self, input: &str) -> &mut Self {
-        let first_character = input.get(0..1).unwrap_or_default();
+    fn process_first_character_set(&mut self) -> &mut Self {
+        let input = self.0.to_owned();
+        let first_character = self.0.get(0..1).unwrap_or_default();
 
         self.0 = match first_character {
             "b" => input.replace('b', "p"),
@@ -101,21 +118,21 @@ mod tests {
 
     #[test]
     fn expect_to_parse_pinyin_to_yade() {
-        let wade = WadeGiles("rong".to_string()).convert_pinyin_to_wade_giles();
+        let wade = WadeGiles("rong").convert_pinyin_to_wade_giles();
 
         assert_eq!(wade, "jung");
     }
 
     #[test]
     fn expect_to_parse_other_pinyin_to_yade() {
-        let wade = WadeGiles("zong".to_string()).convert_pinyin_to_wade_giles();
+        let wade = WadeGiles("zong").convert_pinyin_to_wade_giles();
 
         assert_eq!(wade, "tsung");
     }
 
     #[test]
     fn expect_to_keep_the_tones() {
-        let wade = WadeGiles("chong4".to_string()).convert_pinyin_to_wade_giles();
+        let wade = WadeGiles("chong4").convert_pinyin_to_wade_giles();
 
         assert_eq!(wade, "ch'ung4");
     }

@@ -12,9 +12,9 @@ keywords = ["chinese", "cedict", "pinyin", "zhuyin"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-unicode-normalization = "0.1.22"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+unicode-normalization = "0.1.23"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
 
 [[example]]
 name = "pinyin"

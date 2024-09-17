@@ -48,14 +48,11 @@ impl CommandRunner for Gen {
         let mut cedict = dodo_zh::load_cedict_dictionary(path, KeyVariant::Traditional)?;
 
         // Load the HSK level per character
-        let hsks = hsk::load_hsk_levels().await.map_or_else(
-            |_| {
-                println!("⚠️ Unable to download HSK data");
+        let hsks = hsk::load_hsk_levels().await.unwrap_or_else(|_| {
+            println!("⚠️ Unable to download HSK data");
 
-                HashMap::new()
-            },
-            |v| v,
-        );
+            HashMap::new()
+        });
 
         println!("⚙️ - Processing cedict items...");
         let mut pb = ProgressBuilder::new(cedict.items.len() as u64);
