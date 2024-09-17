@@ -1,9 +1,9 @@
 [package]
 name = "dodo-zh"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "utility to manipulate the cedict dictionary and pinyin"
+description = "utility to operate on pinyin"
 repository = "https://github.com/shigedangao/nomnom/tree/main/dodo"
 authors = ["Marc Intha-amnouay <marc.inthaamnouay@gmail.com>"]
 readme = "../README.md"
