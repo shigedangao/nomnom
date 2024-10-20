@@ -38,7 +38,7 @@ impl Dictionary {
     ///
     /// * `path` - PathBuf
     /// * `key_variant` - KeyVariant
-    pub fn new(path: PathBuf, key_variant: KeyVariant) -> Result<Dictionary, Error> {
+    pub fn new(path: &PathBuf, key_variant: KeyVariant) -> Result<Dictionary, Error> {
         let file = File::open(path)?;
         let lines = BufReader::new(file).lines();
         let mut items = HashMap::new();
@@ -112,6 +112,21 @@ impl TryFrom<String> for Item {
             pinyin_tone_number: pinyin,
             translations,
         })
+    }
+}
+
+impl Item {
+    /// Get the character for the given key variant
+    ///
+    /// # Arguments
+    ///
+    /// * `self` - Item
+    /// * `variant` - KeyVariant
+    pub(crate) fn get_character_for_key_variant(&self, variant: &KeyVariant) -> String {
+        match variant {
+            KeyVariant::Simplified => self.simplified_character.clone(),
+            KeyVariant::Traditional => self.traditional_character.clone(),
+        }
     }
 }
 

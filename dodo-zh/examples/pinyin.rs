@@ -1,4 +1,5 @@
 use dodo_zh;
+use std::path::PathBuf;
 
 fn main() {
     let text = "wo3 xi3 huan1 ni3";
@@ -14,4 +15,13 @@ fn main() {
 
     let pinyin_accent = dodo_zh::convert_pinyin_accent_to_pinyin_number("xǐ huān").unwrap();
     assert_eq!(pinyin_accent, "xi3 huan1");
+
+    let to_tradtional = dodo_zh::convert_text_to_desired_variant(
+        PathBuf::from("./static/cedict_sample_ts.u8"),
+        "她是我的最好挚友",
+        dodo_zh::cedict::KeyVariant::Simplified,
+        dodo_zh::cedict::KeyVariant::Traditional,
+    );
+
+    assert_eq!(to_tradtional.unwrap(), "她是我的最好摯友");
 }

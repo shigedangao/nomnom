@@ -15,6 +15,7 @@ use wade_giles::WadeGiles;
 use zhuyin::Zhuyin;
 
 pub mod cedict;
+pub(crate) mod converter;
 pub(crate) mod error;
 pub(crate) mod pinyin;
 pub(crate) mod wade_giles;
@@ -150,7 +151,26 @@ where
 /// let dict = dodo_zh::load_cedict_dictionary(PathBuf::new(), KeyVariant::Traditional);
 /// ```
 pub fn load_cedict_dictionary(p: PathBuf, key_variant: KeyVariant) -> Result<Dictionary, Error> {
-    let dictionary = Dictionary::new(p, key_variant)?;
+    let dictionary = Dictionary::new(&p, key_variant)?;
 
     Ok(dictionary)
+}
+
+/// Convert a chinese text to a desired variant (simplified <-> tradtional)
+///
+/// # Arguments
+///
+/// * `p` - PathBuf
+/// * `content` - S
+/// * `input_variant` - KeyVariant
+/// * `target_varaint` - KeyVariant
+pub fn convert_text_to_desired_variant<S: AsRef<str>>(
+    p: PathBuf,
+    content: S,
+    input_variant: KeyVariant,
+    target_variant: KeyVariant,
+) -> Result<String, Error> {
+    converter::initialize_dictionaries(&p)?;
+    converter::convert_text_to_desired_variant(content, input_variant, target_variant)
+        .ok_or_else(|| Error::Parse("Unable to convert content to target key variant".to_string()))
 }
