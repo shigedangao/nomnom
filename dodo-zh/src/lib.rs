@@ -148,7 +148,7 @@ where
 /// # Examples
 ///
 /// ```
-/// use dodo_zh::cedict::KeyVariant;
+/// use dodo_zh::variant::KeyVariant;
 /// use std::path::PathBuf;
 ///
 /// let dict = dodo_zh::load_cedict_dictionary(PathBuf::new(), KeyVariant::Traditional);
@@ -167,6 +167,15 @@ pub fn load_cedict_dictionary(p: PathBuf, key_variant: KeyVariant) -> Result<Dic
 /// * `content` - S
 /// * `input_variant` - KeyVariant
 /// * `target_varaint` - KeyVariant
+///
+/// # Examples
+///
+/// ```
+/// use dodo_zh::variant::KeyVariant;
+/// use std::path::PathBuf;
+///
+/// let converted = dodo_zh::convert_text_to_desired_variant(PathBuf::new(), "大家好我是馬克的摯友", KeyVariant::Traditional, KeyVariant::Simplified);
+/// ```
 pub fn convert_text_to_desired_variant<S: AsRef<str>>(
     p: PathBuf,
     content: S,
@@ -187,6 +196,14 @@ pub fn convert_text_to_desired_variant<S: AsRef<str>>(
 ///
 /// * `p` - PathBuf
 /// * `content` - S
+///
+/// # Examples
+///
+/// ```
+/// use dodo_zh::variant::KeyVariant;
+///
+/// let variant = dodo_zh::detect_which_variant(None, "今天是星期天. 我明天不要去公司工作");
+/// ```
 pub fn detect_which_variant<S: AsRef<str>>(
     path: Option<PathBuf>,
     content: S,
