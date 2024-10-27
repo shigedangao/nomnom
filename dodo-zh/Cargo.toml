@@ -7,14 +7,7 @@ description = "utility to operate on pinyin and cedict.u8 file"
 repository = "https://github.com/shigedangao/nomnom/tree/main/dodo-zh"
 authors = ["Marc Intha-amnouay <marc.inthaamnouay@gmail.com>"]
 readme = "../README.md"
-keywords = [
-    "chinese",
-    "cedict",
-    "pinyin",
-    "zhuyin",
-    "conversion",
-    "wades-giles",
-]
+keywords = ["chinese", "cedict", "pinyin", "zhuyin", "wades-giles"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
