@@ -6,19 +6,21 @@
 //! - convert a pinyin to a wade giles
 //! - convert a pinyin which has number tones e.g: wo3 to a pinyin with tone markers wǒ
 //! - convert a pinyin with tones markers to numbers
+//! - convert a simplified <-> traditional text
+//! - detect chinese variant of a text
 use crate::error::Error;
-use cedict::{Dictionary, KeyVariant};
+use cedict::Dictionary;
 use pinyin::accent::PinyinAccent;
 use pinyin::numbers::PinyinNumber;
 use std::path::PathBuf;
+use variant::KeyVariant;
 use wade_giles::WadeGiles;
 use zhuyin::Zhuyin;
 
 pub mod cedict;
-pub(crate) mod converter;
 pub(crate) mod error;
 pub(crate) mod pinyin;
-pub(crate) mod variant;
+pub mod variant;
 pub(crate) mod wade_giles;
 pub(crate) mod zhuyin;
 
@@ -171,21 +173,30 @@ pub fn convert_text_to_desired_variant<S: AsRef<str>>(
     input_variant: KeyVariant,
     target_variant: KeyVariant,
 ) -> Result<String, Error> {
-    converter::initialize_dictionaries(&p)?;
+    variant::initialize_dictionaries(&p)?;
 
-    converter::convert_text_to_desired_variant(content, input_variant, target_variant)
+    variant::KeyVariant::convert_text_to_desired_variant(content, input_variant, target_variant)
         .ok_or_else(|| Error::Parse("Unable to convert content to target key variant".to_string()))
 }
 
-/// Detect which variant of chinese is the text
+/// Detect which variant of chinese is the text. If the given path for the cedict dictionary is passed
+/// the detection will use the cedict. Otherwise it'll try to do the detection through unicode.
+/// ⚠️ Unicode detection isn't very accurate. It's recommended to use the cedict dictionary for a precise detection.
 ///
 /// # Arguments
 ///
 /// * `p` - PathBuf
 /// * `content` - S
-pub fn detect_which_variant<S: AsRef<str>>(p: PathBuf, content: S) -> Result<KeyVariant, Error> {
-    converter::initialize_dictionaries(&p)?;
-
-    variant::which_variant(content)
-        .ok_or_else(|| Error::Parse("Unable to detect chinese variant".to_string()))
+pub fn detect_which_variant<S: AsRef<str>>(
+    path: Option<PathBuf>,
+    content: S,
+) -> Result<KeyVariant, Error> {
+    match path {
+        Some(p) => {
+            variant::initialize_dictionaries(&p)?;
+            variant::KeyVariant::which_variant(content)
+                .ok_or_else(|| Error::Parse("Unable to detect chinese variant".to_string()))
+        }
+        None => Ok(variant::KeyVariant::detect_variant_with_unicode(content)),
+    }
 }

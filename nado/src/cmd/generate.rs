@@ -3,7 +3,8 @@ use crate::hsk;
 use crate::progress::ProgressBuilder;
 use crate::{hsk::HSKLevel, util};
 use anyhow::Result;
-use dodo_zh::cedict::{Item, KeyVariant};
+use dodo_zh::cedict::Item;
+use dodo_zh::variant::KeyVariant;
 use serde::Serialize;
 use std::{collections::HashMap, path::PathBuf};
 

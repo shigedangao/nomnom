@@ -1,4 +1,4 @@
-# Nomnom 🥘
+# Nomnom 🥘 吃吃
 
 <p align="center">
   <img src="./nomnom.gif" />
@@ -31,11 +31,17 @@ cargo run -- generate -e ../cedict_ts.u8 -o ../cedict.csv -f csv
 
 ## Dodo - Lib
 
-A small crates is available which provided a list of utility method to interact with the cedict and doing some pinyin conversion. Below is how you can use the crate to load the cedict
+A small crate which allows to do several operations on the cedict.u8 file but also allows you to do some operations on chinese characters such as:
+
+- Convert pinyin tones to pinyin numbers and vice versa
+- Convert pinyin to wade-giles
+- Convert pinyin to zhuyin
+- Convert a simplified chinese text to tradional and vice versa
+- Detect which chinese variant a text is written
 
 ```rust
 use dodo_zh;
-use dodo_zh::KeyVariant;
+use dodo_zh::variant::KeyVariant;
 
 fn main() {
     // The KeyVariant can either be Traditional or Simplified chinese
@@ -53,5 +59,5 @@ convert the pinyin with tone number to a pinyin with tone marker etc...
 You can run the example with the following command
 
 ```rust
-cargo run --example pinyin
+cargo run --example dodo
 ```
