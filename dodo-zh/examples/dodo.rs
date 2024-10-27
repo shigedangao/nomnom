@@ -1,4 +1,4 @@
-use dodo_zh;
+use dodo_zh::{self, cedict::KeyVariant};
 use std::path::PathBuf;
 
 fn main() {
@@ -22,6 +22,11 @@ fn main() {
         dodo_zh::cedict::KeyVariant::Simplified,
         dodo_zh::cedict::KeyVariant::Traditional,
     );
-
     assert_eq!(to_tradtional.unwrap(), "她是我的最好摯友");
+
+    let variant = dodo_zh::detect_which_variant(
+        PathBuf::from("./static/cedict_sample_ts.u8"),
+        "她是我的最好挚友",
+    );
+    assert_eq!(variant.unwrap(), KeyVariant::Simplified);
 }

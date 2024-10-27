@@ -3,8 +3,8 @@ use crate::cedict::{Dictionary, KeyVariant};
 use crate::Error;
 use std::{collections::HashMap, path::PathBuf, sync::OnceLock};
 
-static SIMPLIFIED: OnceLock<HashMap<String, Item>> = OnceLock::new();
-static TRADTIONAL: OnceLock<HashMap<String, Item>> = OnceLock::new();
+pub(crate) static SIMPLIFIED: OnceLock<HashMap<String, Item>> = OnceLock::new();
+pub(crate) static TRADTIONAL: OnceLock<HashMap<String, Item>> = OnceLock::new();
 
 /// Initialize Dictionaries for simplified & traditional chinese based on the given cedict file path
 ///
