@@ -12,10 +12,16 @@ const CEDICT_SLASH: &str = "/";
 const CEDICT_BRACKET: [char; 2] = ['[', ']'];
 const VALID_LINE_FILTER: [char; 2] = ['#', '%'];
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum KeyVariant {
     Simplified,
     Traditional,
+}
+
+impl Default for KeyVariant {
+    fn default() -> Self {
+        Self::Simplified
+    }
 }
 
 #[derive(Debug)]
