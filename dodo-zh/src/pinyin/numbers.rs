@@ -16,14 +16,12 @@ where
 
         let mut pinyin: Vec<char> = chars
             .into_iter()
-            .filter(|item| {
-                if let Some(acc) = get_char(*item) {
+            .filter(|item| match get_char(*item) {
+                Some(acc) => {
                     accent = acc;
-
-                    return false;
+                    false
                 }
-
-                true
+                None => true,
             })
             .collect();
 

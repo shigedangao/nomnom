@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tokio::task::JoinHandle;
 
-pub const URLS: [&str; 1] = ["https://wohok.com/hsk-7-9-vocabulary-list-for-hsk-3-0/"];
+pub const URLS: [&str; 1] =
+    ["https://www.pinhok.com/kb/for-hsk/1154/hsk-7-9-vocabulary-list-for-hsk-3-0/"];
 
 #[derive(Debug)]
 pub struct Wohok {

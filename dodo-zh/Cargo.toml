@@ -13,8 +13,8 @@ keywords = ["chinese", "cedict", "pinyin", "zhuyin", "wades-giles"]
 
 [dependencies]
 unicode-normalization = "0.1.24"
-serde = { version = "1.0.213", features = ["derive"] }
-serde_json = "1.0.132"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
 
 [[example]]
 name = "dodo"

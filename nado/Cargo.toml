@@ -6,15 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.89"
-clap = { version = "4.5.17", features = ["derive"] }
-dodo-zh = { version = "0.1.3", path = "../dodo-zh" }
-serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
-csv = "1.3.0"
-scraper = "0.20.0"
-tokio = { version = "1.40.0", features = ["full"] }
-reqwest = { version = "0.12.7", features = ["stream"] }
-indicatif = "0.17.8"
-tempfile = "3.12.0"
+anyhow = "1.0.94"
+clap = { version = "4.5.23", features = ["derive"] }
+dodo-zh = { version = "0.1.4", path = "../dodo-zh" }
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.133"
+csv = "1.3.1"
+scraper = "0.21.0"
+tokio = { version = "1.42.0", features = ["full"] }
+reqwest = { version = "0.12.9", features = ["stream"] }
+indicatif = "0.17.9"
+tempfile = "3.14.0"
 futures-util = { version = "0.3.30", default-features = false }
