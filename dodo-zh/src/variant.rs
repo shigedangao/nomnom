@@ -9,7 +9,7 @@ pub(crate) static SIMPLIFIED: OnceLock<HashMap<String, Item>> = OnceLock::new();
 pub(crate) static TRADTIONAL: OnceLock<HashMap<String, Item>> = OnceLock::new();
 
 /// KeyVariant handle the different supported version of chinese.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum KeyVariant {
     Simplified,
     Traditional,
