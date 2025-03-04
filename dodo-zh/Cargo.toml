@@ -1,7 +1,7 @@
 [package]
 name = "dodo-zh"
 version = "0.1.5"
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "utility to operate on pinyin and cedict.u8 file"
 repository = "https://github.com/shigedangao/nomnom/tree/main/dodo-zh"

@@ -3,7 +3,7 @@ use mandarinbean::{Mandarinbean, URLS};
 use serde::Serialize;
 use std::{collections::HashMap, fmt::Display};
 use tokio::task::JoinHandle;
-use wohok::{Wohok, URLS as WohokURLS};
+use wohok::{URLS as WohokURLS, Wohok};
 
 mod mandarinbean;
 mod wohok;

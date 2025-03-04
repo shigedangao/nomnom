@@ -1,6 +1,6 @@
 use super::{CommandRunner, DownloadArgs};
 use crate::progress::ProgressBuilder;
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use futures_util::StreamExt;
 use std::fs::{self, File};
 use std::io::{ErrorKind, Write};

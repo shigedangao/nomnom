@@ -1,5 +1,5 @@
-use crate::cedict::{Dictionary, Item};
 use crate::Error;
+use crate::cedict::{Dictionary, Item};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::OnceLock;

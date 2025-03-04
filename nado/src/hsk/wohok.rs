@@ -1,5 +1,5 @@
 use super::{HSKLevel, Source};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use scraper::html::Html;
 use scraper::selector::Selector;
 use std::collections::HashMap;
