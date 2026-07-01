@@ -62,7 +62,7 @@ impl Zhuyin {
     ///
     /// * `&self` - Self
     /// * `pinyin` - S
-    pub fn get_zhuyin_from_pinyin<S>(&self, pinyin: S) -> Cow<str>
+    pub fn get_zhuyin_from_pinyin<S>(&self, pinyin: S) -> Cow<'_, str>
     where
         S: AsRef<str>,
     {
